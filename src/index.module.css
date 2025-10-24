@@ -1,0 +1,35 @@
+*{
+    margin: 0;
+    box-sizing: border-box;
+    list-style: none;
+    text-decoration: none;
+    padding: 0;
+    font-family: "Instrument Sans", sans-serif;
+}
+
+button{
+    cursor: pointer;
+    justify-content: center;
+    align-items: center;
+}
+button:hover{
+    transform: scale(1.009);
+    transition: transform 0.09s ease;
+}
+
+link{
+    cursor: pointer;
+}
+
+link:hover{
+    transform: scale(1.009);
+    transition: transform 0.8s ease;
+}
+
+a{
+    cursor: pointer;
+}
+a:hover{
+    transform: scale(1.001);
+    transition: transform 0.09s ;
+}
