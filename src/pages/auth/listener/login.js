@@ -18,7 +18,6 @@ const Login = () => {
                 <p>Пароль</p>
                 <input
                   type="password"
-                  йы
                   name="password"
                   placeholder="Введите пароль"
                   // value={email}

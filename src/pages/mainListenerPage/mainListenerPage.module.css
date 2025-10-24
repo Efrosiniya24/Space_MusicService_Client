@@ -1,0 +1,8 @@
+.main{
+    background-color: #434943;
+    height: 100vh;
+    display: flex;
+    align-items: start;
+    justify-content: center;
+    padding: 25px 0px;
+}
