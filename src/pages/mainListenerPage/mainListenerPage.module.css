@@ -229,4 +229,5 @@
 .iconInPhotoText img{
     width: 17px;
     height: 17px;
+    border-radius: 0px;
 }

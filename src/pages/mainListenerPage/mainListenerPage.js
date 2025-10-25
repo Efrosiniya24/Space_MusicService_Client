@@ -6,7 +6,7 @@ import Header from "../../Component/HeaderListener/headerListener";
 import MusicCard1 from "../../reise reise.png";
 import Playlist from "../../PlaylistWhite.png";
 import Like from "../../like.png";
-import Full from "../../full.jpg";
+import Full from "../../full.png";
 import AudioPlayer from "../../Component/AudioPlayer/AudioPlayer";
 
 const MainListenerPage = () => {
