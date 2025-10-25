@@ -6,10 +6,14 @@ import Header from "../../Component/HeaderListener/headerListener";
 import MusicCard1 from "../../reise reise.png";
 import Playlist from "../../PlaylistWhite.png";
 import Like from "../../like.png";
+import NotLike from "../../NotLike.png";
 import Full from "../../full.png";
 import AudioPlayer from "../../Component/AudioPlayer/AudioPlayer";
 
 const MainListenerPage = () => {
+  const [liked, setLiked] = useState(false);
+  const toggleLike = () => setLiked((v) => !v);
+
   return (
     <div className={main.main}>
       <Header />
@@ -346,8 +350,8 @@ const MainListenerPage = () => {
             </a>
           </div>
           <div className={main.iconInPhotoText}>
-            <a>
-              <img src={Like} />
+            <a onClick={toggleLike}>
+              <img src={liked ? NotLike : Like} />
             </a>
           </div>
           <div className={main.iconInPhotoText}>
