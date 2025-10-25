@@ -29,7 +29,13 @@ link:hover{
 a{
     cursor: pointer;
 }
+
 a:hover{
-    transform: scale(1.001);
+    transform: scale(1.01);
+    transition: transform 0.09s ;
+}
+
+a img:hover{
+    transform: scale(1.05   );
     transition: transform 0.09s ;
 }
