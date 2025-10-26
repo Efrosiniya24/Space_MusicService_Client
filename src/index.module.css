@@ -5,6 +5,21 @@
     text-decoration: none;
     padding: 0;
     font-family: "Instrument Sans", sans-serif;
+    height: auto;
+}
+
+.mainListener{
+    background-color: #434943;
+    height: auto;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content:flex-start;
+    padding: 25px 0px;
+    flex-direction: column;
+    gap: 40px;
+    margin-bottom: 62px;
+    bottom: 0;
 }
 
 button{
@@ -38,4 +53,32 @@ a:hover{
 a img:hover{
     transform: scale(1.05   );
     transition: transform 0.09s ;
+}
+
+.texInLine{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #E0E0E0;
+    font-weight: bold;
+}
+
+.texInLine h1{
+    font-size: 25px;
+}
+
+.texInLine p{
+    font-size: 13px;
+}
+
+.texInLine button{
+    padding: 11px 35px;
+    border: none;
+    outline: none;
+    border-radius: 15px;
+    background-color: #1E1736;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    font-size: 14px;
+    color: #FFFFFF;
+    font-weight: bold;
 }

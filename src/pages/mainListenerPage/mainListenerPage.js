@@ -314,19 +314,19 @@ const MainListenerPage = () => {
               <a>
                 <div className={`${main.musician} ${main.org}`}>
                   <img src="" />
-                  <h2>Musician</h2>
+                  <h2>Organization</h2>
                 </div>
               </a>
               <a>
                 <div className={`${main.musician} ${main.org}`}>
                   <img src="" />
-                  <h2>Musician</h2>
+                  <h2>Organization</h2>
                 </div>
               </a>
               <a>
                 <div className={`${main.musician} ${main.org}`}>
                   <img src="" />
-                  <h2>Musician</h2>
+                  <h2>Organization</h2>
                 </div>
               </a>
             </div>

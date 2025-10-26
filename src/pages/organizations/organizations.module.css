@@ -1,0 +1,37 @@
+.main{
+    display: flex;
+    gap:100px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding-left: 0px;
+    margin-left: 0px;
+}
+
+.icons{
+    display: flex;
+    flex-direction: column;
+    gap:14px;
+}
+
+.icons img{
+    width: 30px;
+    height: 30px;
+}
+
+.form{
+    display: flex;
+    flex-direction: column;
+    background-color: #5C6E5C;
+    border-radius: 20px;
+    gap: 28px;
+    width: 1187px;
+    height: 1187px;
+    padding: 28px 23px;
+}
+
+.organizations{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+}
+
