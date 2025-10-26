@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useNavigate, NavLink, useLocation } from "react-router-dom";
 
 import header from "./headerListener.module.css";
-import logo from "../../logo.png";
-import search from "../../searchWhite.png";
+import logo from "../../icons/logo.png";
+import search from "../../icons/searchWhite.png";
 
 const HeaderListener = () => {
   return (
