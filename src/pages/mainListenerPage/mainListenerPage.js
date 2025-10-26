@@ -2,20 +2,15 @@ import React, { useState } from "react";
 import { useNavigate, NavLink, useLocation } from "react-router-dom";
 
 import main from "./mainListenerPage.module.css";
+import index from "../../index.module.css";
 import Header from "../../Component/HeaderListener/headerListener";
-import MusicCard1 from "../../reise reise.png";
-import Playlist from "../../PlaylistWhite.png";
-import Like from "../../like.png";
-import NotLike from "../../NotLike.png";
-import Full from "../../full.png";
 import AudioPlayer from "../../Component/AudioPlayer/AudioPlayer";
+import Playlist from "../../icons/PlaylistWhite.png";
 
 const MainListenerPage = () => {
-  const [liked, setLiked] = useState(false);
-  const toggleLike = () => setLiked((v) => !v);
 
   return (
-    <div className={main.main}>
+    <div className={index.mainListener}>
       <Header />
       <div className={main.musicForm}>
         <div className={main.form}>
@@ -338,35 +333,7 @@ const MainListenerPage = () => {
           </div>
         </div>
       </div>
-      <div className={main.playingLine}>
-        <div className={main.photoText}>
-          <img src="" />
-          <div className={main.text}>
-            <a>
-              <h1>Name of song</h1>
-            </a>
-            <a>
-              <p>Musician</p>
-            </a>
-          </div>
-          <div className={main.iconInPhotoText}>
-            <a onClick={toggleLike}>
-              <img src={liked ? NotLike : Like} />
-            </a>
-          </div>
-          <div className={main.iconInPhotoText}>
-            <a>
-              <img src={Playlist} />
-            </a>
-          </div>
-        </div>
-        <AudioPlayer className={main.player} src="" />
-        <div className={main.iconInPhotoText}>
-          <a>
-            <img src={Full} />
-          </a>
-        </div>
-      </div>
+      <AudioPlayer />
     </div>
   );
 };
