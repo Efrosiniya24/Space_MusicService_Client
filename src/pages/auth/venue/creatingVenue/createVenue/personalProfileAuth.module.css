@@ -1,0 +1,127 @@
+.height{
+    height: 630px;
+}
+
+.sidebar{
+    position: fixed;
+    top: 30px;
+    left: 40px;
+    display: flex;
+    flex-direction: column;
+   
+    gap: 29px;
+    justify-content: flex-start;
+    align-items: flex-start;
+    /* margin-right: 95px; */
+}
+
+.icon{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.icon img{
+    width: 62px;
+    height: auto;
+}
+
+.icon h1{
+    color: #E0E0E0;
+    font-size: 27px;
+}
+
+.menu{
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    gap: 10px;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.menuPart{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    width: 151px;
+}
+
+.menuPart .number{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #D9D9D9;
+    border-radius: 37px;
+    color: #2A6128;
+    width: 37px;
+    height: 37px;
+}
+
+.menuPart .number p{
+    color: #2A6128;
+    font-weight: normal;
+    font-size: 14px;
+}
+
+.menuPart p{
+    color: #FFFFFF;
+    font-weight: bold;
+    font-size: 17px;
+}
+
+.futureDoing p{
+    color: #919191;
+}
+
+.formElements{
+    display: flex;
+    gap: 29px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-direction: column;
+    color: #E0E0E0;
+}
+
+.formElements h1{
+    font-size: 42px;
+}
+
+.gap{
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.switchRow{
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: #E9E9E9;
+    font-size: 17px;
+}
+
+.option{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.circle{
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: none;
+    background: #E9E9E9;
+}
+
+.option input[type="radio"]:checked ~ .circle {
+    background-color: #468743;
+}

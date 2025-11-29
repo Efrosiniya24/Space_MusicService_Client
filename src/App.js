@@ -6,8 +6,9 @@ import SignUp from "./pages/auth/listener/signUp";
 import Main from "./pages/mainListenerPage/mainListenerPage";
 import Orgs from "./pages/venues/organizations";
 import OrgPage from "./pages/OrgPage/orgPage";
-import AuthUserVenues from "./pages/creatingVenue/AllUserVenue";
+import AuthUserVenues from "./pages/auth/venue/creatingVenue/AllUserVenue";
 import SignInVenue from "./pages/auth/venue/signIn";
+import PersonalProfileAuth from "./pages/auth/venue/creatingVenue/createVenue/personalProfileAuth";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/orgPage" element={<OrgPage />}></Route>
         <Route path="/venue/auth/venues" element={<AuthUserVenues />}></Route>
         <Route path="/venue/auth" element={<SignInVenue />}></Route>
+        <Route path="/venue/auth/personalProfile" element={<PersonalProfileAuth />}></Route>
       </Routes>
     </Router>
   );
