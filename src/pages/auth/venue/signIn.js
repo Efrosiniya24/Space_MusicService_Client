@@ -1,11 +1,15 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import login from "../listener/login.module.css";
 import logo from "../../../icons/logo.png";
 
 const LoginVenue = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const redirectTo = location.state?.redirectTo || "/";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -48,7 +52,14 @@ const LoginVenue = () => {
       localStorage.setItem("userId", String(userId));
       localStorage.setItem("userRoles", JSON.stringify(roles || []));
 
-      navigate("/");
+      const hasCuratorRole = roles?.includes("CURATOR");
+
+      if (!hasCuratorRole) {
+        setErrorMessage("У вас нет доступа к странице общественных мест");
+        return;
+      }
+
+      navigate("/venue/auth/venues");
     } catch (error) {
       console.error("Ошибка при авторизации:", error);
       setErrorMessage("Произошла ошибка при авторизации");
