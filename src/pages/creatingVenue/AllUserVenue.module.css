@@ -1,0 +1,42 @@
+.venueButtons{
+    display: flex;
+    flex-direction: column;
+    width: 475px;
+    height: 225px;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 10px;
+    overflow-y: auto;     
+    overflow-x: hidden;
+    padding-right: 4px;
+    padding-left: 2px;
+}
+
+.venueButtons button{
+    display: flex;
+    flex: 0 0 37px;
+    width: 462px;
+    height: 37px;
+    background: #C3C3C3;
+    border-radius: 20px;
+    color: #333333;
+    justify-content: flex-start;
+}
+
+.venueButtons::-webkit-scrollbar {
+    width: 3px;                           
+}
+
+.venueButtons::-webkit-scrollbar-track {
+    background: #333333;                           
+    border-radius: 10px;
+}
+
+.venueButtons::-webkit-scrollbar-thumb {
+    background-color: #D9D9D9;                     
+    border-radius: 9px;                          
+}
+
+.venueButtons::-webkit-scrollbar-thumb:hover {
+    background-color: #dcdcdc;
+}
