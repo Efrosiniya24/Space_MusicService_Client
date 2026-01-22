@@ -12,8 +12,10 @@ const PersonalProfileAuth = () => {
   const redirectTo = location.state?.redirectTo || "/";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [repeatPassword, setRepeatPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [authMode, setAuthMode] = useState("login");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -28,14 +30,14 @@ const PersonalProfileAuth = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ email, password }),
-        }
+        },
       );
 
       if (!response.ok) {
         console.log("Server status:", response.status);
         if (response.status === 403) {
           setErrorMessage(
-            "Ваш аккаунт деактивирован. Пожалуйста, свяжитесь с поддержкой."
+            "Ваш аккаунт деактивирован. Пожалуйста, свяжитесь с поддержкой.",
           );
         } else {
           setErrorMessage("Неверный логин или пароль");
@@ -95,10 +97,10 @@ const PersonalProfileAuth = () => {
               <label className={style.option}>
                 <input
                   type="radio"
-                  name="authMode"
-                  //   value="login"
-                  //   checked={mode === "login"}
-                  //   onChange={() => onChange("login")}
+                  name="login"
+                  value="login"
+                  checked={authMode === "login"}
+                  onChange={() => setAuthMode("login")}
                 />
                 <span>Войти</span>
                 <span className={style.circle} />
@@ -107,10 +109,10 @@ const PersonalProfileAuth = () => {
               <label className={style.option}>
                 <input
                   type="radio"
-                  name="authMode"
-                  //   value="register"
-                  //   checked={mode === "register"}
-                  //   onChange={() => onChange("register")}
+                  name="register"
+                  value="register"
+                  checked={authMode === "register"}
+                  onChange={() => setAuthMode("register")}
                 />
                 <span>Зарегистрироваться</span>
                 <span className={style.circle} />
@@ -136,6 +138,18 @@ const PersonalProfileAuth = () => {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
+            {authMode === "register" && (
+              <div className={login.inputSectoion}>
+                <p>Повторите пароль</p>
+                <input
+                  type="repeatPassword"
+                  name="repeatPassword"
+                  placeholder="Введите повторный пароль"
+                  value={repeatPassword}
+                  onChange={(e) => setRepeatPassword(e.target.value)}
+                />
+              </div>
+            )}
           </form>
           <form className={login.inputSectionButton}>
             <button>Готово</button>
