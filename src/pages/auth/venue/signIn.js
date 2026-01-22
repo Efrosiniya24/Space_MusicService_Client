@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -14,10 +14,21 @@ const LoginVenue = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [highlightEmpty, setHighlightEmpty] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setErrorMessage("");
+
+    if (!email.trim() || !password.trim()) {
+      setErrorMessage("Не все поля заполнены");
+      setHighlightEmpty(true);
+
+      setTimeout(() => {
+        setHighlightEmpty(false);
+      }, 2000);
+      return;
+    }
 
     try {
       const response = await fetch(
@@ -28,17 +39,17 @@ const LoginVenue = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ email, password }),
-        }
+        },
       );
 
       if (!response.ok) {
         console.log("Server status:", response.status);
         if (response.status === 403) {
           setErrorMessage(
-            "Ваш аккаунт деактивирован. Пожалуйста, свяжитесь с поддержкой."
+            "Ваш аккаунт деактивирован. Пожалуйста, свяжитесь с поддержкой.",
           );
         } else {
-          setErrorMessage("Неверный логин или пароль");
+          setErrorMessage("Неверный email или пароль");
         }
         return;
       }
@@ -52,10 +63,12 @@ const LoginVenue = () => {
       localStorage.setItem("userId", String(userId));
       localStorage.setItem("userRoles", JSON.stringify(roles || []));
 
-      const hasCuratorRole = roles?.includes("CURATOR");
+      const hasCuratorRole = roles?.includes("MUSIC_CURATOR");
 
       if (!hasCuratorRole) {
-        setErrorMessage("У вас нет доступа к странице общественных мест");
+        setErrorMessage(
+          "Нет доступа. Обратитесь к администратору вашего заведения",
+        );
         return;
       }
 
@@ -65,8 +78,20 @@ const LoginVenue = () => {
       setErrorMessage("Произошла ошибка при авторизации");
     }
   };
+
+  useEffect(() => {
+    if (!errorMessage) return;
+
+    const timer = setTimeout(() => {
+      setErrorMessage("");
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [errorMessage]);
+
   return (
     <div className={login.mainLogin}>
+      {errorMessage && <div className={login.errorBanner}>{errorMessage}</div>}
       <div className={login.form}>
         <form className={login.formElements} onSubmit={handleSubmit}>
           <div className={login.logoSection}>
@@ -82,6 +107,7 @@ const LoginVenue = () => {
                   name="email"
                   placeholder="Введите email"
                   value={email}
+                  className={highlightEmpty && !email ? login.inputError : ""}
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
@@ -92,6 +118,9 @@ const LoginVenue = () => {
                   name="password"
                   placeholder="Введите пароль"
                   value={password}
+                  className={
+                    highlightEmpty && !password ? login.inputError : ""
+                  }
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
@@ -101,7 +130,7 @@ const LoginVenue = () => {
         </form>
         <div className={login.choice}>
           <p>Нет общественного места?</p>
-          <a>Создай</a>
+          <NavLink to="/venue/auth/personalProfile">Создай</NavLink>
         </div>
       </div>
     </div>

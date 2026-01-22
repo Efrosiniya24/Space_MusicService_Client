@@ -113,3 +113,19 @@
     font-weight: bold;
 }
 
+.errorBanner {
+    position: fixed;
+    top: 20px;
+    padding: 13px 20px;
+    background-color: #DCAAAA;
+    color: #333333;
+    border-radius: 18px;
+    font-size: 21px;
+    text-align: center;
+    z-index: 9999;          
+}
+
+.inputError {
+    border: 3px solid #a35454 !important;
+}
+
