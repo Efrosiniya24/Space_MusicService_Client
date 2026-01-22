@@ -27,7 +27,7 @@ const AllUserVenue = () => {
         </form>
         <div className={login.choice}>
           <p>Нет общественного места?</p>
-          <a>Создай</a>
+          <NavLink to = "/venue/auth/personalProfile">Создай</NavLink>
         </div>
       </div>
     </div>
