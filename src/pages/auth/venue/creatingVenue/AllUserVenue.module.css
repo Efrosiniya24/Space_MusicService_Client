@@ -21,6 +21,13 @@
     border-radius: 20px;
     color: #333333;
     justify-content: flex-start;
+    padding-right: 4px;
+    display: block;
+    text-overflow: ellipsis;   
+    padding: 0 16px;           
+    text-align: left;
+    white-space: nowrap;       
+    overflow: hidden;  
 }
 
 .venueButtons::-webkit-scrollbar {
@@ -39,4 +46,12 @@
 
 .venueButtons::-webkit-scrollbar-thumb:hover {
     background-color: #dcdcdc;
+}
+
+.text {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
 }
