@@ -75,6 +75,11 @@
     color: #919191;
 }
 
+.futureDoing .number{
+    color: #919191;
+    background-color: #919191;
+}
+
 .formElements{
     display: flex;
     gap: 29px;

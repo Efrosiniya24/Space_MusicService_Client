@@ -63,9 +63,11 @@ const LoginVenue = () => {
       localStorage.setItem("userId", String(userId));
       localStorage.setItem("userRoles", JSON.stringify(roles || []));
 
-      const hasCuratorRole = roles?.includes("MUSIC_CURATOR");
+      const hasVenueAccess = roles?.some((r) =>
+        ["MUSIC_CURATOR", "VENUE_ADMIN"].includes(r),
+      );
 
-      if (!hasCuratorRole) {
+      if (!hasVenueAccess) {
         setErrorMessage(
           "Нет доступа. Обратитесь к администратору вашего заведения",
         );

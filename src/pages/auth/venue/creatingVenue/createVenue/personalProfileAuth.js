@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import login from "../../../../auth/listener/login.module.css";
@@ -16,31 +16,46 @@ const PersonalProfileAuth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [authMode, setAuthMode] = useState("login");
+  const [highlightEmpty, setHighlightEmpty] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setErrorMessage("");
 
+    if (!email.trim() || !password.trim()) {
+      setErrorMessage("Не все поля заполнены");
+      setHighlightEmpty(true);
+
+      setTimeout(() => {
+        setHighlightEmpty(false);
+      }, 2000);
+      return;
+    }
+    const url =
+      authMode === "login"
+        ? "http://localhost:8080/space/user/auth/signIn"
+        : "http://localhost:8080/space/user/auth/signUp";
+
+    const body =
+      authMode === "login"
+        ? { email, password }
+        : { email, password, repeatPassword, role: "VENUE_ADMIN" };
+
     try {
-      const response = await fetch(
-        "http://localhost:8080/space/user/auth/signIn",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify(body),
+      });
 
       if (!response.ok) {
         console.log("Server status:", response.status);
-        if (response.status === 403) {
-          setErrorMessage(
-            "Ваш аккаунт деактивирован. Пожалуйста, свяжитесь с поддержкой.",
-          );
+        if (authMode === "login") {
+          setErrorMessage("Неверный email или пароль");
         } else {
-          setErrorMessage("Неверный логин или пароль");
+          setErrorMessage("Ошибка при регистрации");
         }
         return;
       }
@@ -48,25 +63,45 @@ const PersonalProfileAuth = () => {
       const data = await response.json();
       console.log("Server Response:", data);
 
+      if (authMode === "register") {
+        setAuthMode("login");
+        setErrorMessage("Регистрация успешна. Войдите в аккаунт.");
+        return;
+      }
+
       const { accessToken, userId, roles } = data;
 
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("userId", String(userId));
       localStorage.setItem("userRoles", JSON.stringify(roles || []));
 
-      const hasCuratorRole = roles?.includes("CURATOR");
+      const hasVenueAccess = roles?.some((r) =>
+        ["MUSIC_CURATOR", "VENUE_ADMIN"].includes(r),
+      );
 
-      if (!hasCuratorRole) {
-        setErrorMessage("У вас нет доступа к странице общественных мест");
+      if (!hasVenueAccess) {
+        setErrorMessage(
+          "Нет доступа. Обратитесь к администратору вашего заведения",
+        );
         return;
       }
 
-      navigate("/venue/auth/venues");
+      // navigate("/venue/auth/venues");
     } catch (error) {
       console.error("Ошибка при авторизации:", error);
       setErrorMessage("Произошла ошибка при авторизации");
     }
   };
+
+  useEffect(() => {
+    if (!errorMessage) return;
+
+    const timer = setTimeout(() => {
+      setErrorMessage("");
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [errorMessage]);
   return (
     <div className={login.mainLogin}>
       <div className={style.sidebar}>
@@ -90,7 +125,7 @@ const PersonalProfileAuth = () => {
         </div>
       </div>
       <div className={`${login.form} ${style.height} ${index.left}`}>
-        <form className={style.formElements}>
+        <form className={style.formElements} onSubmit={handleSubmit}>
           <h1>Личный профиль</h1>
           <form className={` ${login.inputSectionButton} ${style.gap}`}>
             <div className={style.switchRow}>
@@ -142,7 +177,7 @@ const PersonalProfileAuth = () => {
               <div className={login.inputSectoion}>
                 <p>Повторите пароль</p>
                 <input
-                  type="repeatPassword"
+                  type="password"
                   name="repeatPassword"
                   placeholder="Введите повторный пароль"
                   value={repeatPassword}
@@ -151,9 +186,9 @@ const PersonalProfileAuth = () => {
               </div>
             )}
           </form>
-          <form className={login.inputSectionButton}>
-            <button>Готово</button>
-          </form>
+          <div className={login.inputSectionButton}>
+            <button type="submit">Готово</button>
+          </div>
         </form>
       </div>
     </div>
