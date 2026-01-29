@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, NavLink } from "react-router-dom";
 
 import login from "./login.module.css";
 import logo from "../../../icons/logo.png";
@@ -134,7 +134,7 @@ const Login = () => {
         </form>
         <div className={login.choice}>
           <p>Нет аккаунта?</p>
-          <a>Зарегистрируйся</a>
+          <NavLink to="/signUp">Зарегистрируйся</NavLink>
         </div>
       </div>
     </div>
