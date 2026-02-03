@@ -17,6 +17,7 @@ const PersonalProfileAuth = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [authMode, setAuthMode] = useState("login");
   const [highlightEmpty, setHighlightEmpty] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -53,7 +54,9 @@ const PersonalProfileAuth = () => {
       if (!response.ok) {
         console.log("Server status:", response.status);
         if (authMode === "login") {
-          setErrorMessage("Неверный email или пароль");
+          setErrorMessage(
+            "Проверьте введенный пароль и email  или зарегистрируйтесь",
+          );
         } else {
           setErrorMessage("Ошибка при регистрации");
         }
@@ -62,12 +65,6 @@ const PersonalProfileAuth = () => {
 
       const data = await response.json();
       console.log("Server Response:", data);
-
-      if (authMode === "register") {
-        setAuthMode("login");
-        setErrorMessage("Регистрация успешна. Войдите в аккаунт.");
-        return;
-      }
 
       const { accessToken, userId, roles } = data;
 
@@ -86,7 +83,7 @@ const PersonalProfileAuth = () => {
         return;
       }
 
-      // navigate("/venue/auth/venues");
+      setIsAuthorized(true);
     } catch (error) {
       console.error("Ошибка при авторизации:", error);
       setErrorMessage("Произошла ошибка при авторизации");
@@ -102,8 +99,10 @@ const PersonalProfileAuth = () => {
 
     return () => clearTimeout(timer);
   }, [errorMessage]);
+
   return (
     <div className={login.mainLogin}>
+      {errorMessage && <div className={login.errorBanner}>{errorMessage}</div>}
       <div className={style.sidebar}>
         <div className={style.icon}>
           <img src={logo} />
@@ -116,7 +115,9 @@ const PersonalProfileAuth = () => {
             </div>
             <p>Личный профиль</p>
           </div>
-          <div className={`${style.menuPart} ${style.futureDoing}`}>
+          <div
+            className={`${style.menuPart} ${!isAuthorized ? style.futureDoing : ""}`}
+          >
             <div className={style.number}>
               <p>2</p>
             </div>
@@ -125,71 +126,75 @@ const PersonalProfileAuth = () => {
         </div>
       </div>
       <div className={`${login.form} ${style.height} ${index.left}`}>
-        <form className={style.formElements} onSubmit={handleSubmit}>
-          <h1>Личный профиль</h1>
-          <form className={` ${login.inputSectionButton} ${style.gap}`}>
-            <div className={style.switchRow}>
-              <label className={style.option}>
-                <input
-                  type="radio"
-                  name="login"
-                  value="login"
-                  checked={authMode === "login"}
-                  onChange={() => setAuthMode("login")}
-                />
-                <span>Войти</span>
-                <span className={style.circle} />
-              </label>
+        {!isAuthorized ? (
+          <form className={style.formElements} onSubmit={handleSubmit}>
+            <h1>Личный профиль</h1>
+            <div className={` ${login.inputSectionButton} ${style.gap}`}>
+              <div className={style.switchRow}>
+                <label className={style.option}>
+                  <input
+                    type="radio"
+                    name="login"
+                    value="login"
+                    checked={authMode === "login"}
+                    onChange={() => setAuthMode("login")}
+                  />
+                  <span>Войти</span>
+                  <span className={style.circle} />
+                </label>
 
-              <label className={style.option}>
-                <input
-                  type="radio"
-                  name="register"
-                  value="register"
-                  checked={authMode === "register"}
-                  onChange={() => setAuthMode("register")}
-                />
-                <span>Зарегистрироваться</span>
-                <span className={style.circle} />
-              </label>
-            </div>
-            <div className={login.inputSectoion}>
-              <p>Email</p>
-              <input
-                type="email"
-                name="email"
-                placeholder="Введите email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div className={login.inputSectoion}>
-              <p>Пароль</p>
-              <input
-                type="password"
-                name="password"
-                placeholder="Введите пароль"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-            {authMode === "register" && (
+                <label className={style.option}>
+                  <input
+                    type="radio"
+                    name="register"
+                    value="register"
+                    checked={authMode === "register"}
+                    onChange={() => setAuthMode("register")}
+                  />
+                  <span>Зарегистрироваться</span>
+                  <span className={style.circle} />
+                </label>
+              </div>
               <div className={login.inputSectoion}>
-                <p>Повторите пароль</p>
+                <p>Email</p>
                 <input
-                  type="password"
-                  name="repeatPassword"
-                  placeholder="Введите повторный пароль"
-                  value={repeatPassword}
-                  onChange={(e) => setRepeatPassword(e.target.value)}
+                  type="email"
+                  name="email"
+                  placeholder="Введите email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
-            )}
+              <div className={login.inputSectoion}>
+                <p>Пароль</p>
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="Введите пароль"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+              {authMode === "register" && (
+                <div className={login.inputSectoion}>
+                  <p>Повторите пароль</p>
+                  <input
+                    type="password"
+                    name="repeatPassword"
+                    placeholder="Введите повторный пароль"
+                    value={repeatPassword}
+                    onChange={(e) => setRepeatPassword(e.target.value)}
+                  />
+                </div>
+              )}
+            </div>
+            <div className={login.inputSectionButton}>
+              <button type="submit">Готово</button>
+            </div>
           </form>
-          <div className={login.inputSectionButton}>
-            <button type="submit">Готово</button>
-          </div>
-        </form>
+        ) : (
+          <div></div>
+        )}
       </div>
     </div>
   );
