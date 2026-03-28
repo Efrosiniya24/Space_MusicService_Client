@@ -10,14 +10,15 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [highlightEmpty, setHighlightEmpty] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setErrorMessage("");
 
     if (!email.trim() || !password.trim()) {
+      setSuccessMessage("");
       setErrorMessage("Не все поля заполнены");
       setHighlightEmpty(true);
 
@@ -26,6 +27,9 @@ const Login = () => {
       }, 2000);
       return;
     }
+
+    setErrorMessage("");
+    setSuccessMessage("");
 
     try {
       const response = await fetch(
@@ -78,7 +82,10 @@ const Login = () => {
         );
       }
 
-      navigate("/");
+      setSuccessMessage("Авторизация прошла успешно!");
+      setTimeout(() => {
+        navigate("/");
+      }, 1800);
     } catch (error) {
       console.error("Ошибка при авторизации:", error);
       setErrorMessage("Произошла ошибка при авторизации");
@@ -98,6 +105,9 @@ const Login = () => {
   return (
     <div className={login.mainLogin}>
       {errorMessage && <div className={login.errorBanner}>{errorMessage}</div>}
+      {successMessage && (
+        <div className={login.successBanner}>{successMessage}</div>
+      )}
       <div className={login.form}>
         <form className={login.formElements} onSubmit={handleSubmit}>
           <div className={login.logoSection}>

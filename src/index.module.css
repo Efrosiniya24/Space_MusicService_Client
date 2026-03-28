@@ -28,8 +28,8 @@ button{
     align-items: center;
 }
 button:hover{
-    transform: scale(1.009);
-    transition: transform 0.09s ease;
+    transform: translateY(-1px);
+    transition: transform 0.12s ease;
 }
 
 link{
@@ -46,8 +46,7 @@ a{
 }
 
 a:hover{
-    transform: scale(1.01);
-    transition: transform 0.09s ;
+color: #e0e0e0ef;
 }
 
 a img:hover{

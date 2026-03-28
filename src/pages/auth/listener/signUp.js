@@ -10,14 +10,15 @@ const SignUp = () => {
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [highlightEmpty, setHighlightEmpty] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setErrorMessage("");
 
     if (!email.trim() || !password.trim() || !repeatPassword.trim()) {
+      setSuccessMessage("");
       setErrorMessage("Не все поля заполнены");
       setHighlightEmpty(true);
 
@@ -28,9 +29,13 @@ const SignUp = () => {
     }
 
     if (password !== repeatPassword) {
+      setSuccessMessage("");
       setErrorMessage("Пароли не совпадают");
       return;
     }
+
+    setErrorMessage("");
+    setSuccessMessage("");
 
     try {
       const response = await fetch(
@@ -65,7 +70,10 @@ const SignUp = () => {
       localStorage.setItem("userId", String(userId));
       localStorage.setItem("userRoles", JSON.stringify(roles));
 
-      navigate("/");
+      setSuccessMessage("Регистрация прошла успешно!");
+      setTimeout(() => {
+        navigate("/");
+      }, 1800);
       return;
     } catch (error) {
       console.error("Ошибка при регистрации:", error);
@@ -86,6 +94,9 @@ const SignUp = () => {
   return (
     <div className={login.mainLogin}>
       {errorMessage && <div className={login.errorBanner}>{errorMessage}</div>}
+      {successMessage && (
+        <div className={login.successBanner}>{successMessage}</div>
+      )}
       <div className={`${login.form} ${login.registerFormHeight}`}>
         <form className={login.formElements} onSubmit={handleSubmit}>
           <div className={login.logoSection}>
