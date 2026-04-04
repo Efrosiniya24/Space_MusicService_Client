@@ -6,6 +6,44 @@ import index from "../../../../../index.module.css";
 import logo from "../../../../../icons/logo.png";
 import style from "./personalProfileAuth.module.css";
 
+const API_GATEWAY = "http://localhost:8080";
+const URL_VENUE_CREATE = `${API_GATEWAY}/space/venue/create`;
+const URL_MEDIA_ADD_VENUE_COVER = `${API_GATEWAY}/space/media/addVenueCover`;
+const URL_MEDIA_UPLOAD_DOCUMENTS = `${API_GATEWAY}/space/media/uploadDocuments`;
+
+const INITIAL_VENUE_FIELD_ERRORS = {
+  venueName: false,
+  venueEmail: false,
+  venuePhone: false,
+  venueDescription: false,
+  logo: false,
+};
+
+function buildAddressPayloadAndRowErrors(addresses) {
+  const rowErrors = {};
+  const payload = [];
+  for (const r of addresses) {
+    const country = r.country.trim();
+    const city = r.city.trim();
+    const addressCity = r.value.trim();
+    const any = country || city || addressCity;
+    const all = country && city && addressCity;
+    if (all) {
+      payload.push({ country, city, addressCity });
+    } else if (any) {
+      rowErrors[r.id] = true;
+    }
+  }
+  if (payload.length === 0) {
+    addresses.forEach((row) => {
+      rowErrors[row.id] = true;
+    });
+  }
+  const addressesOk =
+    payload.length >= 1 && Object.keys(rowErrors).length === 0;
+  return { addressesOk, rowErrors, payload };
+}
+
 function getFileTypeInfo(file) {
   const name = file.name || "";
   const dot = name.lastIndexOf(".");
@@ -133,7 +171,14 @@ const PersonalProfileAuth = () => {
   const fileInputRef = useRef(null);
   const logoInputRef = useRef(null);
   const nextAddressIdRef = useRef(1);
-  const [addresses, setAddresses] = useState([{ id: 0, value: "" }]);
+  const [addresses, setAddresses] = useState([
+    { id: 0, country: "", city: "", value: "" },
+  ]);
+  const [venueFieldErrors, setVenueFieldErrors] = useState(
+    INITIAL_VENUE_FIELD_ERRORS,
+  );
+  const [addressRowErrors, setAddressRowErrors] = useState({});
+  const [isVenueSubmitting, setIsVenueSubmitting] = useState(false);
 
   const handleAuthSubmit = async (event) => {
     event.preventDefault();
@@ -227,11 +272,125 @@ const PersonalProfileAuth = () => {
     }
   };
 
-  const handleVenueCreateSubmit = (event) => {
+  const handleVenueCreateSubmit = async (event) => {
     event.preventDefault();
-    setErrorMessage("");
     setSuccessMessage("");
-    // TODO: отправка данных заведения на API
+    setErrorMessage("");
+
+    const ownerIdRaw = localStorage.getItem("userId");
+    const ownerIdParsed =
+      ownerIdRaw != null ? Number.parseInt(ownerIdRaw, 10) : NaN;
+    const ownerIdOk =
+      Number.isFinite(ownerIdParsed) && ownerIdParsed > 0;
+
+    const { addressesOk, rowErrors, payload } =
+      buildAddressPayloadAndRowErrors(addresses);
+
+    const nextFieldErrors = {
+      venueName: !venueName.trim(),
+      venueEmail: !venueEmail.trim(),
+      venuePhone: !venuePhone.trim(),
+      venueDescription: !venueDescription.trim(),
+      logo: !venueLogoFile,
+    };
+
+    const fieldsAndAddressesOk =
+      !Object.values(nextFieldErrors).some(Boolean) && addressesOk;
+    const allOk = ownerIdOk && fieldsAndAddressesOk;
+
+    if (!allOk) {
+      setVenueFieldErrors({
+        ...nextFieldErrors,
+      });
+      setAddressRowErrors(rowErrors);
+      setErrorMessage("Заполните все обязательные поля");
+      return;
+    }
+
+    setVenueFieldErrors({ ...INITIAL_VENUE_FIELD_ERRORS });
+    setAddressRowErrors({});
+
+    const token = localStorage.getItem("accessToken");
+    const jsonHeaders = { "Content-Type": "application/json" };
+    if (token) {
+      jsonHeaders.Authorization = `Bearer ${token}`;
+    }
+    const multipartAuthHeaders = token
+      ? { Authorization: `Bearer ${token}` }
+      : {};
+
+    setIsVenueSubmitting(true);
+    try {
+      const venueBody = {
+        name: venueName.trim(),
+        email: venueEmail.trim(),
+        phone: venuePhone.trim(),
+        description: venueDescription.trim(),
+        ownerId: ownerIdParsed,
+        addresses: payload,
+      };
+      const site = websiteLink.trim();
+      if (site) {
+        venueBody.urlWebSite = site;
+      }
+
+      const createRes = await fetch(URL_VENUE_CREATE, {
+        method: "POST",
+        headers: jsonHeaders,
+        body: JSON.stringify(venueBody),
+      });
+
+      if (!createRes.ok) {
+        throw new Error("venue_create");
+      }
+
+      const createdVenue = await createRes.json();
+      const venueId = createdVenue?.id;
+      if (venueId == null) {
+        throw new Error("venue_id");
+      }
+
+      const logoFd = new FormData();
+      logoFd.append("file", venueLogoFile);
+      logoFd.append("ownerId", String(ownerIdParsed));
+      logoFd.append("venueId", String(venueId));
+
+      const logoRes = await fetch(URL_MEDIA_ADD_VENUE_COVER, {
+        method: "POST",
+        headers: multipartAuthHeaders,
+        body: logoFd,
+      });
+
+      if (!logoRes.ok) {
+        throw new Error("logo_upload");
+      }
+
+      if (selectedFiles.length > 0) {
+        const docsFd = new FormData();
+        docsFd.append("venueId", String(venueId));
+        selectedFiles.forEach((file) => {
+          docsFd.append("files", file);
+        });
+
+        const docsRes = await fetch(URL_MEDIA_UPLOAD_DOCUMENTS, {
+          method: "POST",
+          headers: multipartAuthHeaders,
+          body: docsFd,
+        });
+
+        if (!docsRes.ok) {
+          throw new Error("documents_upload");
+        }
+      }
+
+      setSuccessMessage("Добавление произошло успешно");
+    } catch (err) {
+      console.error(err);
+      setSuccessMessage("");
+      setErrorMessage("Ошибка при добавлении общественного метса");
+    } finally {
+      setIsVenueSubmitting(false);
+    }
   };
 
   useEffect(() => {
@@ -239,7 +398,9 @@ const PersonalProfileAuth = () => {
 
     const timer = setTimeout(() => {
       setErrorMessage("");
-    }, 2000);
+      setVenueFieldErrors({ ...INITIAL_VENUE_FIELD_ERRORS });
+      setAddressRowErrors({});
+    }, 3000);
 
     return () => clearTimeout(timer);
   }, [errorMessage]);
@@ -318,15 +479,15 @@ const PersonalProfileAuth = () => {
 
   const lastAddressFilled = () => {
     if (addresses.length === 0) return false;
-    const last = addresses[addresses.length - 1].value;
-    return String(last).trim() !== "";
+    const last = addresses[addresses.length - 1];
+    return String(last.value).trim() !== "";
   };
 
   const addAddressRow = () => {
     if (!lastAddressFilled()) return;
     setAddresses((prev) => [
       ...prev,
-      { id: nextAddressIdRef.current++, value: "" },
+      { id: nextAddressIdRef.current++, country: "", city: "", value: "" },
     ]);
   };
 
@@ -336,9 +497,9 @@ const PersonalProfileAuth = () => {
     );
   };
 
-  const setAddressValue = (id, value) => {
+  const updateAddressRow = (id, field, value) => {
     setAddresses((prev) =>
-      prev.map((row) => (row.id === id ? { ...row, value } : row)),
+      prev.map((row) => (row.id === id ? { ...row, [field]: value } : row)),
     );
   };
 
@@ -521,6 +682,7 @@ const PersonalProfileAuth = () => {
                     placeholder="Название"
                     value={venueName}
                     onChange={(e) => setVenueName(e.target.value)}
+                    className={venueFieldErrors.venueName ? login.inputError : ""}
                   />
                 </div>
                 <div
@@ -533,6 +695,7 @@ const PersonalProfileAuth = () => {
                     placeholder="Email"
                     value={venueEmail}
                     onChange={(e) => setVenueEmail(e.target.value)}
+                    className={venueFieldErrors.venueEmail ? login.inputError : ""}
                   />
                 </div>
                 <div
@@ -545,6 +708,7 @@ const PersonalProfileAuth = () => {
                     placeholder="Моб. телефон"
                     value={venuePhone}
                     onChange={(e) => setVenuePhone(e.target.value)}
+                    className={venueFieldErrors.venuePhone ? login.inputError : ""}
                   />
                 </div>
                 <div
@@ -568,6 +732,9 @@ const PersonalProfileAuth = () => {
                     placeholder="Описание общественного места"
                     value={venueDescription}
                     onChange={(e) => setVenueDescription(e.target.value)}
+                    className={
+                      venueFieldErrors.venueDescription ? login.inputError : ""
+                    }
                   />
                 </div>
                 <div
@@ -636,7 +803,7 @@ const PersonalProfileAuth = () => {
                   {!venueLogoFile ? (
                     <button
                       type="button"
-                      className={style.logo}
+                      className={`${style.logo} ${venueFieldErrors.logo ? style.logoError : ""}`}
                       onClick={openLogoPicker}
                       aria-label="Добавить фото логотипа"
                     >
@@ -684,16 +851,52 @@ const PersonalProfileAuth = () => {
                         const isLast = index === addresses.length - 1;
                         return (
                           <div key={row.id} className={style.addressRow}>
-                            <input
-                              type="text"
-                              name={`address-${row.id}`}
-                              placeholder="Адрес"
-                              value={row.value}
-                              onChange={(e) =>
-                                setAddressValue(row.id, e.target.value)
-                              }
-                              className={style.addressInput}
-                            />
+                            <div className={style.addressBlockFields}>
+                              <div className={style.addressCountryCityRow}>
+                                <input
+                                  type="text"
+                                  name={`country-${row.id}`}
+                                  placeholder="Страна"
+                                  value={row.country}
+                                  onChange={(e) =>
+                                    updateAddressRow(
+                                      row.id,
+                                      "country",
+                                      e.target.value,
+                                    )
+                                  }
+                                  className={`${style.addressInput} ${addressRowErrors[row.id] ? login.inputError : ""}`}
+                                />
+                                <input
+                                  type="text"
+                                  name={`city-${row.id}`}
+                                  placeholder="Город"
+                                  value={row.city}
+                                  onChange={(e) =>
+                                    updateAddressRow(
+                                      row.id,
+                                      "city",
+                                      e.target.value,
+                                    )
+                                  }
+                                  className={`${style.addressInput} ${addressRowErrors[row.id] ? login.inputError : ""}`}
+                                />
+                              </div>
+                              <input
+                                type="text"
+                                name={`address-${row.id}`}
+                                placeholder="Адрес"
+                                value={row.value}
+                                onChange={(e) =>
+                                  updateAddressRow(
+                                    row.id,
+                                    "value",
+                                    e.target.value,
+                                  )
+                                }
+                                className={`${style.addressInput} ${addressRowErrors[row.id] ? login.inputError : ""}`}
+                              />
+                            </div>
                             <div className={style.addressRowBtns}>
                               {isLast && (
                                 <button
@@ -726,7 +929,9 @@ const PersonalProfileAuth = () => {
                 <div
                   className={`${login.inputSectionButton} ${style.venueCreateSubmitWrap}`}
                 >
-                  <button type="submit">Создать</button>
+                  <button type="submit" disabled={isVenueSubmitting}>
+                    Сохранить
+                  </button>
                 </div>
               </div>
             </div>
