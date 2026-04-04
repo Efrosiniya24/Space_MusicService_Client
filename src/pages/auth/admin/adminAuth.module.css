@@ -1,12 +1,3 @@
-.mainLogin{
-    margin: 0px;
-    background-color: #E5E5E5;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center; 
-}
-
 .main{
     display: flex;
     justify-content: space-between;
@@ -27,7 +18,6 @@
 
 .logo p{
     font-size: 14px;
-    font-weight: bold;
     color: #333333;
 }
 

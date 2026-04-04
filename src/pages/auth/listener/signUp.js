@@ -64,10 +64,24 @@ const SignUp = () => {
       );
 
       const data = await signIn.json();
-      const { accessToken: token, userId, roles } = data;
+      const {
+        accessToken: token,
+        userId,
+        roles,
+        name: displayName,
+        email: emailFromApi,
+      } = data;
 
       localStorage.setItem("accessToken", token);
       localStorage.setItem("userId", String(userId));
+      localStorage.setItem(
+        "name",
+        displayName != null ? String(displayName) : "",
+      );
+      localStorage.setItem(
+        "email",
+        emailFromApi != null ? String(emailFromApi) : email,
+      );
       localStorage.setItem("userRoles", JSON.stringify(roles));
 
       setSuccessMessage("Регистрация прошла успешно!");

@@ -59,10 +59,15 @@ const AdminAuth = () => {
       const data = await response.json();
       console.log("Server Response:", data);
 
-      const { accessToken, userId, roles } = data;
+      const { accessToken, userId, roles, name: displayName } = data;
 
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("userId", String(userId));
+      localStorage.setItem(
+        "name",
+        displayName != null ? String(displayName) : "",
+      );
+      localStorage.setItem("email", email);
       localStorage.setItem("userRoles", JSON.stringify(roles || []));
       console.log("ROLES:", roles);
       const hasVenueAccess = roles?.some((r) => ["SYSTEM_ADMIN"].includes(r));
@@ -76,7 +81,7 @@ const AdminAuth = () => {
       setSuccessMessage("Авторизация прошла успешно!");
       setTimeout(() => {
         setSuccessMessage("");
-        navigate("/");
+        navigate("/admin/venues");
       }, 1800);
     } catch (error) {
       console.error("Ошибка при авторизации:", error);

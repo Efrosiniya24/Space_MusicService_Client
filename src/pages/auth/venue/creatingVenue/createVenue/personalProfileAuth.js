@@ -46,9 +46,9 @@ function buildAddressPayloadAndRowErrors(addresses) {
 }
 
 function getFileTypeInfo(file) {
-  const name = file.name || "";
-  const dot = name.lastIndexOf(".");
-  const ext = dot >= 0 ? name.slice(dot + 1).toUpperCase() : "";
+  const fileName = file.name || "";
+  const dot = fileName.lastIndexOf(".");
+  const ext = dot >= 0 ? fileName.slice(dot + 1).toUpperCase() : "";
   const mime = file.type || "";
 
   if (mime === "application/pdf" || ext === "PDF") {
@@ -240,10 +240,24 @@ const PersonalProfileAuth = () => {
       const data = await response.json();
       console.log("Server Response:", data);
 
-      const { accessToken, userId, roles } = data;
+      const {
+        accessToken,
+        userId,
+        roles,
+        name: displayName,
+        email: emailFromApi,
+      } = data;
 
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("userId", String(userId));
+      localStorage.setItem(
+        "name",
+        displayName != null ? String(displayName) : "",
+      );
+      localStorage.setItem(
+        "email",
+        emailFromApi != null ? String(emailFromApi) : email,
+      );
       localStorage.setItem("userRoles", JSON.stringify(roles || []));
 
       const hasVenueAccess = roles?.some((r) =>
@@ -396,17 +410,17 @@ const PersonalProfileAuth = () => {
   };
 
   useEffect(() => {
-  if (!errorMessage && !successMessage) return;
+    if (!errorMessage && !successMessage) return;
 
-  const timer = setTimeout(() => {
-    setErrorMessage("");
-    setSuccessMessage("");
-    setVenueFieldErrors({ ...INITIAL_VENUE_FIELD_ERRORS });
-    setAddressRowErrors({});
-  }, 3000);
+    const timer = setTimeout(() => {
+      setErrorMessage("");
+      setSuccessMessage("");
+      setVenueFieldErrors({ ...INITIAL_VENUE_FIELD_ERRORS });
+      setAddressRowErrors({});
+    }, 3000);
 
-  return () => clearTimeout(timer);
-}, [errorMessage, successMessage]);
+    return () => clearTimeout(timer);
+  }, [errorMessage, successMessage]);
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files || []);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { useNavigate, useLocation } from "react-router-dom";
-  
+
 import login from "../listener/login.module.css";
 import logo from "../../../icons/logo.png";
 
@@ -57,10 +57,24 @@ const LoginVenue = () => {
       const data = await response.json();
       console.log("Server Response:", data);
 
-      const { accessToken, userId, roles } = data;
+      const {
+        accessToken,
+        userId,
+        roles,
+        name: displayName,
+        email: emailFromApi,
+      } = data;
 
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("userId", String(userId));
+      localStorage.setItem(
+        "name",
+        displayName != null ? String(displayName) : "",
+      );
+      localStorage.setItem(
+        "email",
+        emailFromApi != null ? String(emailFromApi) : email,
+      );
       localStorage.setItem("userRoles", JSON.stringify(roles || []));
 
       const hasVenueAccess = roles?.some((r) =>
