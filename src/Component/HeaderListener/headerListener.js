@@ -1,11 +1,13 @@
-import React, { useState } from "react";
-import { useNavigate, NavLink, useLocation } from "react-router-dom";
+import React from "react";
 
+import { getUserAvatarLetters } from "../../utils/getUserAvatarLetters";
 import header from "./headerListener.module.css";
 import logo from "../../icons/logo.png";
 import search from "../../icons/searchWhite.png";
 
 const HeaderListener = () => {
+  const avatarLetters = getUserAvatarLetters();
+
   return (
     <div className={header.main}>
       <div className={header.logo}>
@@ -24,7 +26,7 @@ const HeaderListener = () => {
         />
       </div>
       <div className={header.account}>
-        <p>Ф</p>
+        <p>{avatarLetters}</p>
       </div>
     </div>
   );
