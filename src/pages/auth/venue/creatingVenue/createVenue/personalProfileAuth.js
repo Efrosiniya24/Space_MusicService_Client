@@ -5,6 +5,7 @@ import login from "../../../../auth/listener/login.module.css";
 import index from "../../../../../index.module.css";
 import logo from "../../../../../icons/logo.png";
 import style from "./personalProfileAuth.module.css";
+import video from "./video/video_thirdPage.mp4";
 
 const API_GATEWAY = "http://localhost:8080";
 const URL_VENUE_CREATE = `${API_GATEWAY}/space/venue/create`;
@@ -179,6 +180,7 @@ const PersonalProfileAuth = () => {
   );
   const [addressRowErrors, setAddressRowErrors] = useState({});
   const [isVenueSubmitting, setIsVenueSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleAuthSubmit = async (event) => {
     event.preventDefault();
@@ -280,8 +282,7 @@ const PersonalProfileAuth = () => {
     const ownerIdRaw = localStorage.getItem("userId");
     const ownerIdParsed =
       ownerIdRaw != null ? Number.parseInt(ownerIdRaw, 10) : NaN;
-    const ownerIdOk =
-      Number.isFinite(ownerIdParsed) && ownerIdParsed > 0;
+    const ownerIdOk = Number.isFinite(ownerIdParsed) && ownerIdParsed > 0;
 
     const { addressesOk, rowErrors, payload } =
       buildAddressPayloadAndRowErrors(addresses);
@@ -384,6 +385,7 @@ const PersonalProfileAuth = () => {
       }
 
       setSuccessMessage("Добавление произошло успешно");
+      setIsSuccess(true);
     } catch (err) {
       console.error(err);
       setSuccessMessage("");
@@ -394,16 +396,17 @@ const PersonalProfileAuth = () => {
   };
 
   useEffect(() => {
-    if (!errorMessage) return;
+  if (!errorMessage && !successMessage) return;
 
-    const timer = setTimeout(() => {
-      setErrorMessage("");
-      setVenueFieldErrors({ ...INITIAL_VENUE_FIELD_ERRORS });
-      setAddressRowErrors({});
-    }, 3000);
+  const timer = setTimeout(() => {
+    setErrorMessage("");
+    setSuccessMessage("");
+    setVenueFieldErrors({ ...INITIAL_VENUE_FIELD_ERRORS });
+    setAddressRowErrors({});
+  }, 3000);
 
-    return () => clearTimeout(timer);
-  }, [errorMessage]);
+  return () => clearTimeout(timer);
+}, [errorMessage, successMessage]);
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files || []);
@@ -669,272 +672,303 @@ const PersonalProfileAuth = () => {
             className={style.formElements}
             onSubmit={handleVenueCreateSubmit}
           >
-            <h1>Создание общественного места</h1>
-            <div className={style.row}>
-              <div className={style.column}>
-                <div
-                  className={`${login.inputSectoion} ${login.narrowInputSection}`}
-                >
-                  <p>Название</p>
-                  <input
-                    type="text"
-                    name="venueName"
-                    placeholder="Название"
-                    value={venueName}
-                    onChange={(e) => setVenueName(e.target.value)}
-                    className={venueFieldErrors.venueName ? login.inputError : ""}
-                  />
-                </div>
-                <div
-                  className={`${login.inputSectoion} ${login.narrowInputSection}`}
-                >
-                  <p>Email</p>
-                  <input
-                    type="email"
-                    name="venueEmail"
-                    placeholder="Email"
-                    value={venueEmail}
-                    onChange={(e) => setVenueEmail(e.target.value)}
-                    className={venueFieldErrors.venueEmail ? login.inputError : ""}
-                  />
-                </div>
-                <div
-                  className={`${login.inputSectoion} ${login.narrowInputSection}`}
-                >
-                  <p>Моб. телефон</p>
-                  <input
-                    type="tel"
-                    name="phone"
-                    placeholder="Моб. телефон"
-                    value={venuePhone}
-                    onChange={(e) => setVenuePhone(e.target.value)}
-                    className={venueFieldErrors.venuePhone ? login.inputError : ""}
-                  />
-                </div>
-                <div
-                  className={`${login.inputSectoion} ${login.narrowInputSection}`}
-                >
-                  <p>Ссылка на сайт</p>
-                  <input
-                    type="url"
-                    name="websiteLink"
-                    placeholder="https://…"
-                    value={websiteLink}
-                    onChange={(e) => setWebsiteLink(e.target.value)}
-                  />
-                </div>
-                <div
-                  className={`${login.inputSectoion} ${login.narrowInputSection}`}
-                >
-                  <p>Описание общественного места</p>
-                  <textarea
-                    name="venueDescription"
-                    placeholder="Описание общественного места"
-                    value={venueDescription}
-                    onChange={(e) => setVenueDescription(e.target.value)}
-                    className={
-                      venueFieldErrors.venueDescription ? login.inputError : ""
-                    }
-                  />
-                </div>
-                <div
-                  className={`${login.inputSectoion} ${login.narrowInputSection}`}
-                >
-                  <p>Добавление документов</p>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    className={style.hiddenFileInput}
-                    multiple
-                    accept="*/*"
-                    onChange={handleFileChange}
-                  />
-                  {selectedFiles.length === 0 ? (
-                    <button
-                      type="button"
-                      className={style.fileDropZoneEmpty}
-                      onClick={handleClick}
+            {!isSuccess ? (
+              <div>
+                <h1>Создание общественного места</h1>
+                <div className={style.row}>
+                  <div className={style.column}>
+                    <div
+                      className={`${login.inputSectoion} ${login.narrowInputSection}`}
                     >
-                      <span className={style.dropLine}>
-                        Добавьте <b>файлы</b> или <b>фото</b>,
-                      </span>
-                      <span className={style.dropLine}>
-                        подтверждающие подлинность
-                      </span>
-                      <span className={style.dropLine}>заведения</span>
-                    </button>
-                  ) : (
-                    <div className={style.fileDropZoneFilled}>
-                      <div className={style.fileScrollRow}>
-                        {selectedFiles.map((file, index) => (
-                          <FileThumb
-                            key={`${file.name}-${file.size}-${file.lastModified}-${index}`}
-                            file={file}
-                            onRemove={() => removeFile(index)}
-                            onImagePreview={(f) => {
-                              setLogoLightboxOpen(false);
-                              setFileLightboxFile(f);
-                            }}
-                          />
-                        ))}
-                      </div>
-                      <button
-                        type="button"
-                        className={style.fileAddMore}
-                        onClick={handleClick}
-                        aria-label="Добавить ещё файлы"
-                      >
-                        +
-                      </button>
+                      <p>Название</p>
+                      <input
+                        type="text"
+                        name="venueName"
+                        placeholder="Название"
+                        value={venueName}
+                        onChange={(e) => setVenueName(e.target.value)}
+                        className={
+                          venueFieldErrors.venueName ? login.inputError : ""
+                        }
+                      />
                     </div>
-                  )}
-                </div>
-              </div>
-              <div className={style.column}>
-                <div className={login.inputSectoion}>
-                  <p>Логотип</p>
-                  <input
-                    ref={logoInputRef}
-                    type="file"
-                    accept="image/*"
-                    className={style.hiddenFileInput}
-                    onChange={handleLogoFileChange}
-                  />
-                  {!venueLogoFile ? (
-                    <button
-                      type="button"
-                      className={`${style.logo} ${venueFieldErrors.logo ? style.logoError : ""}`}
-                      onClick={openLogoPicker}
-                      aria-label="Добавить фото логотипа"
+                    <div
+                      className={`${login.inputSectoion} ${login.narrowInputSection}`}
                     >
-                      <p>+</p>
-                    </button>
-                  ) : (
-                    <div className={style.logoFilled}>
-                      {logoPreviewUrl ? (
+                      <p>Email</p>
+                      <input
+                        type="email"
+                        name="venueEmail"
+                        placeholder="Email"
+                        value={venueEmail}
+                        onChange={(e) => setVenueEmail(e.target.value)}
+                        className={
+                          venueFieldErrors.venueEmail ? login.inputError : ""
+                        }
+                      />
+                    </div>
+                    <div
+                      className={`${login.inputSectoion} ${login.narrowInputSection}`}
+                    >
+                      <p>Моб. телефон</p>
+                      <input
+                        type="tel"
+                        name="phone"
+                        placeholder="Моб. телефон"
+                        value={venuePhone}
+                        onChange={(e) => setVenuePhone(e.target.value)}
+                        className={
+                          venueFieldErrors.venuePhone ? login.inputError : ""
+                        }
+                      />
+                    </div>
+                    <div
+                      className={`${login.inputSectoion} ${login.narrowInputSection}`}
+                    >
+                      <p>Ссылка на сайт</p>
+                      <input
+                        type="url"
+                        name="websiteLink"
+                        placeholder="https://…"
+                        value={websiteLink}
+                        onChange={(e) => setWebsiteLink(e.target.value)}
+                      />
+                    </div>
+                    <div
+                      className={`${login.inputSectoion} ${login.narrowInputSection}`}
+                    >
+                      <p>Описание общественного места</p>
+                      <textarea
+                        name="venueDescription"
+                        placeholder="Описание общественного места"
+                        value={venueDescription}
+                        onChange={(e) => setVenueDescription(e.target.value)}
+                        className={
+                          venueFieldErrors.venueDescription
+                            ? login.inputError
+                            : ""
+                        }
+                      />
+                    </div>
+                    <div
+                      className={`${login.inputSectoion} ${login.narrowInputSection}`}
+                    >
+                      <p>Добавление документов</p>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        className={style.hiddenFileInput}
+                        multiple
+                        accept="*/*"
+                        onChange={handleFileChange}
+                      />
+                      {selectedFiles.length === 0 ? (
                         <button
                           type="button"
-                          className={style.logoPreviewOpen}
-                          onClick={() => {
-                            setFileLightboxFile(null);
-                            setLogoLightboxOpen(true);
-                          }}
-                          aria-label="Открыть фото крупно"
+                          className={style.fileDropZoneEmpty}
+                          onClick={handleClick}
                         >
-                          <img
-                            src={logoPreviewUrl}
-                            alt=""
-                            className={style.logoPreviewImg}
-                            draggable={false}
-                          />
+                          <span className={style.dropLine}>
+                            Добавьте <b>файлы</b> или <b>фото</b>,
+                          </span>
+                          <span className={style.dropLine}>
+                            подтверждающие подлинность
+                          </span>
+                          <span className={style.dropLine}>заведения</span>
                         </button>
-                      ) : null}
-                      <button
-                        type="button"
-                        className={style.logoRemove}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          clearVenueLogo();
-                        }}
-                        aria-label="Удалить фото логотипа"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  )}
-                </div>
-                <div className={login.inputSectoion}>
-                  <p>Адреса</p>
-                  <div className={style.addressListScroll}>
-                    <div className={style.addressRows}>
-                      {addresses.map((row, index) => {
-                        const isLast = index === addresses.length - 1;
-                        return (
-                          <div key={row.id} className={style.addressRow}>
-                            <div className={style.addressBlockFields}>
-                              <div className={style.addressCountryCityRow}>
-                                <input
-                                  type="text"
-                                  name={`country-${row.id}`}
-                                  placeholder="Страна"
-                                  value={row.country}
-                                  onChange={(e) =>
-                                    updateAddressRow(
-                                      row.id,
-                                      "country",
-                                      e.target.value,
-                                    )
-                                  }
-                                  className={`${style.addressInput} ${addressRowErrors[row.id] ? login.inputError : ""}`}
-                                />
-                                <input
-                                  type="text"
-                                  name={`city-${row.id}`}
-                                  placeholder="Город"
-                                  value={row.city}
-                                  onChange={(e) =>
-                                    updateAddressRow(
-                                      row.id,
-                                      "city",
-                                      e.target.value,
-                                    )
-                                  }
-                                  className={`${style.addressInput} ${addressRowErrors[row.id] ? login.inputError : ""}`}
-                                />
-                              </div>
-                              <input
-                                type="text"
-                                name={`address-${row.id}`}
-                                placeholder="Адрес"
-                                value={row.value}
-                                onChange={(e) =>
-                                  updateAddressRow(
-                                    row.id,
-                                    "value",
-                                    e.target.value,
-                                  )
-                                }
-                                className={`${style.addressInput} ${addressRowErrors[row.id] ? login.inputError : ""}`}
+                      ) : (
+                        <div className={style.fileDropZoneFilled}>
+                          <div className={style.fileScrollRow}>
+                            {selectedFiles.map((file, index) => (
+                              <FileThumb
+                                key={`${file.name}-${file.size}-${file.lastModified}-${index}`}
+                                file={file}
+                                onRemove={() => removeFile(index)}
+                                onImagePreview={(f) => {
+                                  setLogoLightboxOpen(false);
+                                  setFileLightboxFile(f);
+                                }}
                               />
-                            </div>
-                            <div className={style.addressRowBtns}>
-                              {isLast && (
-                                <button
-                                  type="button"
-                                  className={style.addressRowBtn}
-                                  onClick={addAddressRow}
-                                  disabled={!lastAddressFilled()}
-                                  aria-label="Добавить строку адреса"
-                                >
-                                  +
-                                </button>
-                              )}
-                              {addresses.length > 1 && (
-                                <button
-                                  type="button"
-                                  className={style.addressRowBtn}
-                                  onClick={() => removeAddressRow(row.id)}
-                                  aria-label="Удалить строку адреса"
-                                >
-                                  −
-                                </button>
-                              )}
-                            </div>
+                            ))}
                           </div>
-                        );
-                      })}
+                          <button
+                            type="button"
+                            className={style.fileAddMore}
+                            onClick={handleClick}
+                            aria-label="Добавить ещё файлы"
+                          >
+                            +
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className={style.column}>
+                    <div className={login.inputSectoion}>
+                      <p>Логотип</p>
+                      <input
+                        ref={logoInputRef}
+                        type="file"
+                        accept="image/*"
+                        className={style.hiddenFileInput}
+                        onChange={handleLogoFileChange}
+                      />
+                      {!venueLogoFile ? (
+                        <button
+                          type="button"
+                          className={`${style.logo} ${venueFieldErrors.logo ? style.logoError : ""}`}
+                          onClick={openLogoPicker}
+                          aria-label="Добавить фото логотипа"
+                        >
+                          <p>+</p>
+                        </button>
+                      ) : (
+                        <div className={style.logoFilled}>
+                          {logoPreviewUrl ? (
+                            <button
+                              type="button"
+                              className={style.logoPreviewOpen}
+                              onClick={() => {
+                                setFileLightboxFile(null);
+                                setLogoLightboxOpen(true);
+                              }}
+                              aria-label="Открыть фото крупно"
+                            >
+                              <img
+                                src={logoPreviewUrl}
+                                alt=""
+                                className={style.logoPreviewImg}
+                                draggable={false}
+                              />
+                            </button>
+                          ) : null}
+                          <button
+                            type="button"
+                            className={style.logoRemove}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              clearVenueLogo();
+                            }}
+                            aria-label="Удалить фото логотипа"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    <div className={login.inputSectoion}>
+                      <p>Адреса</p>
+                      <div className={style.addressListScroll}>
+                        <div className={style.addressRows}>
+                          {addresses.map((row, index) => {
+                            const isLast = index === addresses.length - 1;
+                            return (
+                              <div key={row.id} className={style.addressRow}>
+                                <div className={style.addressBlockFields}>
+                                  <div className={style.addressCountryCityRow}>
+                                    <input
+                                      type="text"
+                                      name={`country-${row.id}`}
+                                      placeholder="Страна"
+                                      value={row.country}
+                                      onChange={(e) =>
+                                        updateAddressRow(
+                                          row.id,
+                                          "country",
+                                          e.target.value,
+                                        )
+                                      }
+                                      className={`${style.addressInput} ${addressRowErrors[row.id] ? login.inputError : ""}`}
+                                    />
+                                    <input
+                                      type="text"
+                                      name={`city-${row.id}`}
+                                      placeholder="Город"
+                                      value={row.city}
+                                      onChange={(e) =>
+                                        updateAddressRow(
+                                          row.id,
+                                          "city",
+                                          e.target.value,
+                                        )
+                                      }
+                                      className={`${style.addressInput} ${addressRowErrors[row.id] ? login.inputError : ""}`}
+                                    />
+                                  </div>
+                                  <input
+                                    type="text"
+                                    name={`address-${row.id}`}
+                                    placeholder="Адрес"
+                                    value={row.value}
+                                    onChange={(e) =>
+                                      updateAddressRow(
+                                        row.id,
+                                        "value",
+                                        e.target.value,
+                                      )
+                                    }
+                                    className={`${style.addressInput} ${addressRowErrors[row.id] ? login.inputError : ""}`}
+                                  />
+                                </div>
+                                <div className={style.addressRowBtns}>
+                                  {isLast && (
+                                    <button
+                                      type="button"
+                                      className={style.addressRowBtn}
+                                      onClick={addAddressRow}
+                                      disabled={!lastAddressFilled()}
+                                      aria-label="Добавить строку адреса"
+                                    >
+                                      +
+                                    </button>
+                                  )}
+                                  {addresses.length > 1 && (
+                                    <button
+                                      type="button"
+                                      className={style.addressRowBtn}
+                                      onClick={() => removeAddressRow(row.id)}
+                                      aria-label="Удалить строку адреса"
+                                    >
+                                      −
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      className={`${login.inputSectionButton} ${style.venueCreateSubmitWrap}`}
+                    >
+                      <button type="submit" disabled={isVenueSubmitting}>
+                        Сохранить
+                      </button>
                     </div>
                   </div>
                 </div>
-                <div
-                  className={`${login.inputSectionButton} ${style.venueCreateSubmitWrap}`}
-                >
-                  <button type="submit" disabled={isVenueSubmitting}>
-                    Сохранить
-                  </button>
+              </div>
+            ) : (
+              <div className={style.thirdPageText}>
+                <h1>Заявка на регистрацию отправлена!</h1>
+                <p>С Вами свяжутся в ближайшее время</p>
+                <div className={style.videoOuter}>
+                  <div className={style.videoWrapper}>
+                    <video
+                      className={style.video}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                    >
+                      <source src={video} type="video/mp4" />
+                    </video>
+                    <div className={style.shadow}></div>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </form>
         </div>
       )}
