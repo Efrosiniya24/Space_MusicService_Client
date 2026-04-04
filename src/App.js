@@ -10,6 +10,7 @@ import AuthUserVenues from "./pages/auth/venue/creatingVenue/AllUserVenue";
 import SignInVenue from "./pages/auth/venue/signIn";
 import PersonalProfileAuth from "./pages/auth/venue/creatingVenue/createVenue/personalProfileAuth";
 import AdminAuth from "./pages/auth/admin/adminAuth";
+import VenuesAdmin from "./pages/admin/venues/VenuesAdmin";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           element={<PersonalProfileAuth />}
         ></Route>
         <Route path="/admin/auth" element={<AdminAuth />}></Route>
+        <Route path="/admin/venues" element={<VenuesAdmin />}></Route>
       </Routes>
     </Router>
   );
