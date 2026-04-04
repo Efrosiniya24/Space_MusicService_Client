@@ -4,14 +4,12 @@
     box-sizing: border-box;
 }
 
-/* Только карточка «создание места»: контент не вылезает за форму */
 .venueCreateCard {
     overflow: hidden;
 }
 
-/* Скролл только у списка строк адресов */
 .addressListScroll {
-    max-height: 280px;
+    max-height: 258px;
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-width: thin;
