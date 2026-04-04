@@ -9,6 +9,7 @@ import OrgPage from "./pages/OrgPage/orgPage";
 import AuthUserVenues from "./pages/auth/venue/creatingVenue/AllUserVenue";
 import SignInVenue from "./pages/auth/venue/signIn";
 import PersonalProfileAuth from "./pages/auth/venue/creatingVenue/createVenue/personalProfileAuth";
+import AdminAuth from "./pages/auth/admin/adminAuth";
 
 function App() {
   return (
@@ -21,7 +22,11 @@ function App() {
         <Route path="/orgPage" element={<OrgPage />}></Route>
         <Route path="/venue/auth/venues" element={<AuthUserVenues />}></Route>
         <Route path="/venue/auth" element={<SignInVenue />}></Route>
-        <Route path="/venue/auth/personalProfile" element={<PersonalProfileAuth />}></Route>
+        <Route
+          path="/venue/auth/personalProfile"
+          element={<PersonalProfileAuth />}
+        ></Route>
+        <Route path="/admin/auth" element={<AdminAuth />}></Route>
       </Routes>
     </Router>
   );
