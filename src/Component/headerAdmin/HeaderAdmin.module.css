@@ -1,0 +1,130 @@
+.main{
+    display: flex;
+    justify-content: space-between;
+    width: 1450px;
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.logo{
+    display: flex;
+    gap: 3px;
+    align-items: center;
+}
+
+.logo img {
+    width: 42px;
+    height: 42px;
+}
+
+.logo p{
+    font-size: 14px;
+    font-weight: bold;
+    color: #333333;
+}
+
+.search{
+    display: flex;
+    height: 36px;
+    border: none;
+    outline: none;
+    padding: 7px;
+    gap: 14px;
+    align-items: flex-start;
+}
+
+.navIconWrap {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.navIconBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.navIconBtn img {
+    width: 27px;
+    height: 27px;
+    display: block;
+    transition: transform 0.2s ease;
+}
+
+.navIconWrap:hover .navIconBtn img,
+.navIconBtn:focus-visible img {
+    transform: scale(1.14);
+}
+
+.navIconBtn:focus-visible {
+    outline: 2px solid #468743;
+    outline-offset: 3px;
+    border-radius: 6px;
+}
+
+.navIconLabel {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: #333333;
+    background-color: #f0f0f0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease,
+        visibility 0.2s ease;
+    z-index: 20;
+}
+
+.navIconWrap:hover .navIconLabel,
+.navIconWrap:focus-within .navIconLabel {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+.account{
+    display: flex;
+    width: 42px;
+    height: 42px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 65px;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    background-color: #468743;
+    font-size: 20px;
+    color: #D9D9D9;
+    font-weight: bold;
+}
+
+.searchInput{
+    color: #D9D9D9;
+    caret-color: #D9D9D9;
+}
+
+.account:hover{
+    transform: scale(1.09);
+    transition: transform 0.8s ease;
+}
