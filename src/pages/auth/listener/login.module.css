@@ -187,11 +187,13 @@
     background-color: #B8D2B9;
     color: #1E3D1C;
     border-radius: 18px;
+    font-weight: bold;
     font-size: 21px;
     text-align: center;
     white-space: nowrap;
     overflow-x: auto;
     z-index: 9999;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
 }
 
 .inputError {

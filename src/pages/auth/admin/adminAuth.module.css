@@ -2,6 +2,7 @@
     display: flex;
     justify-content: space-between;
     width: 1450px;
+    height: 100vh;
 }
 
 .logo{
@@ -18,19 +19,20 @@
 
 .logo p{
     font-size: 14px;
+    font-weight: 800;
+    font-variation-settings: "wght" 800;
     color: #333333;
 }
 
 .mainLogin {
-    margin: 0;
+    padding-bottom: 40px;
     background-color: #E5E5E5;
-    height: 100vh;
-
+    min-height: 100vh;
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: center;
-
-    position: relative; 
+    position: relative;
 }
 
 .header {
@@ -47,7 +49,7 @@
 
 .form {
     width: 637px;
-    height: 432px;
+    height: 449px;
     background-color: #EFEFEF;
     border-radius: 52px;
     box-shadow: 0px 4px 72px 0px #00000025;
