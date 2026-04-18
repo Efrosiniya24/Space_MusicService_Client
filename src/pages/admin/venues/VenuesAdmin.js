@@ -7,6 +7,7 @@ import React, {
   useLayoutEffect,
 } from "react";
 import { createPortal } from "react-dom";
+import { Link } from "react-router-dom";
 import style from "./VenueAdmin.module.css";
 import login from "../../auth/admin/adminAuth.module.css";
 import notice from "../../auth/listener/login.module.css";
@@ -555,15 +556,28 @@ const VenuesAdmin = () => {
                     ) : (
                       <>
                         {pageRows.map((row, i) => {
-                          const globalIndex = pageStart + i;
                           return (
                             <tr
                               key={`${row.id}-${pageStart}-${i}`}
                               data-venue-row={String(row.id)}
                             >
                               <td>{row.id}</td>
-                              <td className={style.cellNameBold}>{row.name}</td>
-                              <td>{formatDate(row.createdAt)}</td>
+                              <td className={style.cellNameBold}>
+                                <Link
+                                  className={style.venueCellLink}
+                                  to={`/admin/venue/${row.id}`}
+                                >
+                                  {row.name}
+                                </Link>
+                              </td>
+                              <td>
+                                <Link
+                                  className={style.venueCellLink}
+                                  to={`/admin/venue/${row.id}`}
+                                >
+                                  {formatDate(row.createdAt)}
+                                </Link>
+                              </td>
                               <td className={style.cellStatus}>
                                 <button
                                   type="button"

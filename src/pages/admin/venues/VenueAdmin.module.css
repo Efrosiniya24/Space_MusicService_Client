@@ -300,6 +300,14 @@
     font-weight: 700;
 }
 
+.venueCellLink {
+    color: inherit;
+    text-decoration: none;
+    display: inline-block;
+    max-width: 100%;
+    cursor: pointer;
+}
+
 .cellStatus {
     text-align: left;
 }
