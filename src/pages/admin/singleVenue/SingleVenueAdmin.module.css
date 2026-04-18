@@ -101,20 +101,15 @@ cursor: pointer;
 }
 
 .venueInfoUp {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: flex-start;
-    width: 420px;
-    flex-wrap: wrap;
-    gap: 50px;
-}
-
-.venueInfoUpContacts {
-    display: flex;
-    flex-direction: column;
-    gap: 9px;
-    min-width: 0;
+    display: grid;
+    grid-template-columns: auto max-content max-content;
+    grid-template-rows: auto auto;
+    column-gap:24px;
+    row-gap: 9px;
+    align-items: center;
+    justify-items: start;
+    width: max-content;
+    max-width: 100%;
 }
 
 .contactRow {
@@ -135,12 +130,72 @@ cursor: pointer;
     word-break: break-word;
 }
 
-.venueInfoUpStatus {
+.addressStatusLabel {
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    background: none;
+    padding: 0;
+    margin: 0;
+}
+
+.addressStatusLabel_pending {
+    color: #aca154;
+}
+
+.addressStatusLabel_processing {
+    color: #738cb3;
+}
+
+.addressStatusLabel_approved {
+    color: #468743;
+}
+
+.addressStatusLabel_denied {
+    color: #DCAAAA;
+}
+
+.addressStatusCell {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 12px;
+    justify-content: flex-start;
+    gap: 10px;
+    min-width: 0;
+}
+
+.addressStatusCount {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 7px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    box-sizing: border-box;
     flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+    background-color: #ffffff;
+    border: 1px solid #000000;
+}
+
+.addressStatusCount_pending {
+    color: #4e4827;
+}
+
+.addressStatusCount_processing {
+    color: #122b53;
+}
+
+.addressStatusCount_approved {
+    color: #122f10;
+}
+
+.addressStatusCount_denied {
+    color: #622f2f;
 }
 
 .buttonsMenu {

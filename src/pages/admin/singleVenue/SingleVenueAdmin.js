@@ -6,7 +6,6 @@ import React, {
   useRef,
   useLayoutEffect,
 } from "react";
-import { createPortal } from "react-dom";
 import { NavLink, useParams } from "react-router-dom";
 
 import adminStyle from "../venues/VenueAdmin.module.css";
@@ -36,37 +35,12 @@ function urlVenueCurators(id) {
   return `${API_GATEWAY}/space/users/venueCurators/${id}`;
 }
 
-function urlVenueConfirm(id) {
-  return `${API_GATEWAY}/space/system/venue/confirm/${id}`;
-}
-
-function mapUiStatusToApiParam(uiKey) {
-  switch (uiKey) {
-    case "APPROVED":
-      return "CONFIRMED";
-    case "DENIED":
-      return "REJECTED";
-    default:
-      return uiKey;
-  }
-}
-
-function mapVenueStatusForUi(apiStatus) {
-  const s = String(apiStatus ?? "").toUpperCase();
-  if (s === "CONFIRMED") return "APPROVED";
-  if (s === "REJECTED") return "DENIED";
-  if (s === "PROCESSING") return "PROCESSING";
-  return "PENDING";
-}
-
 const STATUS_LABEL = {
   PENDING: "Pending",
   PROCESSING: "Processing",
   APPROVED: "Approved",
   DENIED: "Denied",
 };
-
-const ALL_STATUS_KEYS = ["PENDING", "PROCESSING", "APPROVED", "DENIED"];
 
 function resolveVenueCoverUrl(cover) {
   if (cover == null || !String(cover).trim()) return null;
@@ -76,18 +50,11 @@ function resolveVenueCoverUrl(cover) {
   return `${API_GATEWAY}/${c}`;
 }
 
-const STATUS_UI = {
-  PENDING: { label: "Pending", badgeClass: adminStyle.status_PENDING },
-  PROCESSING: { label: "Processing", badgeClass: adminStyle.status_PROCESSING },
-  APPROVED: { label: "Approved", badgeClass: adminStyle.status_APPROVED },
-  DENIED: { label: "Denied", badgeClass: adminStyle.status_DENIED },
-};
-
 const CURATOR_DEFAULT_ROW_HEIGHT = 53;
 const CURATOR_MIN_VISIBLE_ROWS = 4;
 const ADDRESS_COUNTRIES_PER_PAGE = 3;
 
-/** Группировка адресов заведения: страна → города → строки addressCity */
+/** Group venue addresses: country → cities → addressCity lines */
 function buildVenueAddressBlocks(venue) {
   const raw = Array.isArray(venue?.addresses) ? venue.addresses : [];
   const active = raw.filter((a) => a && !a.deleted);
@@ -170,64 +137,6 @@ function SortArrows({ active, direction }) {
   );
 }
 
-function StatusChangePopover({
-  currentStatus,
-  draftStatus,
-  onSelect,
-  onSave,
-  popoverRef,
-  styleBox,
-}) {
-  const otherKeys = ALL_STATUS_KEYS.filter((k) => k !== currentStatus);
-
-  if (typeof document === "undefined" || !styleBox) return null;
-
-  return createPortal(
-    <div
-      ref={popoverRef}
-      className={adminStyle.statusPopover}
-      style={{
-        position: "fixed",
-        top: styleBox.top,
-        left: styleBox.left,
-        minWidth: styleBox.minWidth,
-        zIndex: 10000,
-      }}
-      role="dialog"
-      aria-label="Изменить статус"
-    >
-      <div className={adminStyle.statusPopoverTitle}>Изменить статус</div>
-      <div className={adminStyle.statusPopoverList} role="listbox">
-        {otherKeys.map((key) => (
-          <label key={key} className={adminStyle.statusPopoverOption}>
-            <input
-              type="radio"
-              name="venue-status-draft-single"
-              value={key}
-              checked={draftStatus === key}
-              onChange={() => onSelect(key)}
-            />
-            <span
-              className={`${adminStyle.statusBadge} ${adminStyle[`status_${key}`] || ""} ${adminStyle.statusPopoverBadge}`}
-            >
-              {STATUS_LABEL[key] ?? key}
-            </span>
-          </label>
-        ))}
-      </div>
-      <p
-        type="button"
-        className={adminStyle.statusPopoverSave}
-        disabled={!draftStatus}
-        onClick={onSave}
-      >
-        Сохранить
-      </p>
-    </div>,
-    document.body,
-  );
-}
-
 const SingleVenueAdmin = () => {
   const { venueId } = useParams();
   const [errorMessage, setErrorMessage] = useState("");
@@ -261,16 +170,22 @@ const SingleVenueAdmin = () => {
   );
   const curatorsTableScrollRef = useRef(null);
 
-  const [statusMenuOpen, setStatusMenuOpen] = useState(false);
-  const [statusDraft, setStatusDraft] = useState(null);
-  const [statusPopoverBox, setStatusPopoverBox] = useState(null);
-  const statusPopoverRef = useRef(null);
-  const statusMenuAnchorRef = useRef(null);
-
-  const statusKey = useMemo(
-    () => (venue ? mapVenueStatusForUi(venue.status) : "PENDING"),
-    [venue],
-  );
+  const addressStatusCounts = useMemo(() => {
+    const raw = Array.isArray(venue?.addresses) ? venue.addresses : [];
+    const active = raw.filter((a) => a && !a.deleted);
+    let pending = 0;
+    let processing = 0;
+    let confirmed = 0;
+    let rejected = 0;
+    for (const a of active) {
+      const st = String(a?.status ?? "PENDING").toUpperCase();
+      if (st === "PROCESSING") processing += 1;
+      else if (st === "CONFIRMED") confirmed += 1;
+      else if (st === "REJECTED") rejected += 1;
+      else pending += 1;
+    }
+    return { pending, processing, confirmed, rejected };
+  }, [venue?.addresses]);
 
   const coverSrc = useMemo(() => {
     if (coverBroken) return returnPage;
@@ -304,93 +219,6 @@ const SingleVenueAdmin = () => {
       setVenueLoading(false);
     }
   }, [venueId]);
-
-  const closeStatusMenu = useCallback(() => {
-    setStatusMenuOpen(false);
-    setStatusDraft(null);
-    setStatusPopoverBox(null);
-    statusMenuAnchorRef.current = null;
-  }, []);
-
-  const updateStatusPopoverPosition = useCallback(() => {
-    const el = statusMenuAnchorRef.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    setStatusPopoverBox({
-      top: r.bottom + 6,
-      left: r.left,
-      minWidth: Math.max(220, r.width),
-    });
-  }, []);
-
-  useLayoutEffect(() => {
-    if (!statusMenuOpen) return undefined;
-    updateStatusPopoverPosition();
-    const onScrollOrResize = () => updateStatusPopoverPosition();
-    window.addEventListener("scroll", onScrollOrResize, true);
-    window.addEventListener("resize", onScrollOrResize);
-    return () => {
-      window.removeEventListener("scroll", onScrollOrResize, true);
-      window.removeEventListener("resize", onScrollOrResize);
-    };
-  }, [statusMenuOpen, updateStatusPopoverPosition]);
-
-  useEffect(() => {
-    if (!statusMenuOpen) return undefined;
-    const onPointerDown = (e) => {
-      const pop = statusPopoverRef.current;
-      const anchor = statusMenuAnchorRef.current;
-      if (pop?.contains(e.target)) return;
-      if (anchor?.contains(e.target)) return;
-      closeStatusMenu();
-    };
-    document.addEventListener("mousedown", onPointerDown);
-    document.addEventListener("touchstart", onPointerDown);
-    return () => {
-      document.removeEventListener("mousedown", onPointerDown);
-      document.removeEventListener("touchstart", onPointerDown);
-    };
-  }, [statusMenuOpen, closeStatusMenu]);
-
-  useEffect(() => {
-    if (!statusMenuOpen) return undefined;
-    const onKey = (e) => {
-      if (e.key === "Escape") closeStatusMenu();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [statusMenuOpen, closeStatusMenu]);
-
-  const openStatusMenu = useCallback(
-    (e) => {
-      if (venueLoading || !venue?.id) return;
-      statusMenuAnchorRef.current = e.currentTarget;
-      setStatusMenuOpen(true);
-      setStatusDraft(null);
-    },
-    [venueLoading, venue?.id],
-  );
-
-  const handleStatusSave = useCallback(async () => {
-    if (!statusMenuOpen || !statusDraft || !venue?.id) return;
-    const statusParam = mapUiStatusToApiParam(statusDraft);
-    const token = localStorage.getItem("accessToken");
-    const url = new URL(urlVenueConfirm(venue.id));
-    url.searchParams.set("status", statusParam);
-    try {
-      const res = await fetch(url.toString(), {
-        method: "POST",
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
-      if (!res.ok) throw new Error("confirm_failed");
-      setSuccessMessage("Статус обновлён");
-      setErrorMessage("");
-      await loadVenue();
-      closeStatusMenu();
-    } catch {
-      setErrorMessage("Не удалось обновить статус");
-    }
-  }, [statusMenuOpen, statusDraft, venue?.id, loadVenue, closeStatusMenu]);
 
   useEffect(() => {
     loadVenue();
@@ -740,47 +568,67 @@ const SingleVenueAdmin = () => {
                           </div>
                         </div>
                         <div className={style.venueInfoUp}>
-                          <div className={style.venueInfoUpContacts}>
-                            <div className={style.contactRow}>
-                              <span className={style.contactLabel}>Email:</span>
-                              <span className={style.contactValue}>
-                                {venueLoading ? "…" : email}
-                              </span>
-                            </div>
-                            <div className={style.contactRow}>
-                              <span className={style.contactLabel}>
-                                Моб. тел.:
-                              </span>
-                              <span className={style.contactValue}>
-                                {venueLoading ? "…" : phone}
-                              </span>
-                            </div>
+                          <div className={style.contactRow}>
+                            <span className={style.contactLabel}>Email:</span>
+                            <span className={style.contactValue}>
+                              {venueLoading ? "…" : email}
+                            </span>
                           </div>
-                          <div className={style.venueInfoUpStatus}>
-                            <span className={style.contactLabel}>Статус:</span>
-                            <button
-                              type="button"
-                              className={adminStyle.statusBadgeButton}
-                              disabled={venueLoading || !venue?.id}
-                              aria-expanded={statusMenuOpen}
-                              aria-haspopup="dialog"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (statusMenuOpen) {
-                                  closeStatusMenu();
-                                } else {
-                                  openStatusMenu(e);
-                                }
-                              }}
+                          <div className={style.addressStatusCell}>
+                            <span
+                              className={`${style.addressStatusLabel} ${style.addressStatusLabel_pending}`}
                             >
-                              <span
-                                className={`${adminStyle.statusBadge} ${adminStyle[`status_${statusKey}`] || ""}`}
-                              >
-                                {STATUS_UI[statusKey]?.label ??
-                                  STATUS_LABEL[statusKey] ??
-                                  "Pending"}
-                              </span>
-                            </button>
+                              {STATUS_LABEL.PENDING}
+                            </span>
+                            <span
+                              className={`${style.addressStatusCount} ${style.addressStatusCount_pending}`}
+                            >
+                              {addressStatusCounts.pending}
+                            </span>
+                          </div>
+                          <div className={style.addressStatusCell}>
+                            <span
+                              className={`${style.addressStatusLabel} ${style.addressStatusLabel_processing}`}
+                            >
+                              {STATUS_LABEL.PROCESSING}
+                            </span>
+                            <span
+                              className={`${style.addressStatusCount} ${style.addressStatusCount_processing}`}
+                            >
+                              {addressStatusCounts.processing}
+                            </span>
+                          </div>
+                          <div className={style.contactRow}>
+                            <span className={style.contactLabel}>
+                              Моб. тел.:
+                            </span>
+                            <span className={style.contactValue}>
+                              {venueLoading ? "…" : phone}
+                            </span>
+                          </div>
+                          <div className={style.addressStatusCell}>
+                            <span
+                              className={`${style.addressStatusLabel} ${style.addressStatusLabel_approved}`}
+                            >
+                              {STATUS_LABEL.APPROVED}
+                            </span>
+                            <span
+                              className={`${style.addressStatusCount} ${style.addressStatusCount_approved}`}
+                            >
+                              {addressStatusCounts.confirmed}
+                            </span>
+                          </div>
+                          <div className={style.addressStatusCell}>
+                            <span
+                              className={`${style.addressStatusLabel} ${style.addressStatusLabel_denied}`}
+                            >
+                              {STATUS_LABEL.DENIED}
+                            </span>
+                            <span
+                              className={`${style.addressStatusCount} ${style.addressStatusCount_denied}`}
+                            >
+                              {addressStatusCounts.rejected}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -1414,19 +1262,9 @@ const SingleVenueAdmin = () => {
           </div>
         </div>
       </div>
-
-      {statusMenuOpen ? (
-        <StatusChangePopover
-          currentStatus={statusKey}
-          draftStatus={statusDraft}
-          onSelect={setStatusDraft}
-          onSave={handleStatusSave}
-          popoverRef={statusPopoverRef}
-          styleBox={statusPopoverBox}
-        />
-      ) : null}
     </div>
   );
 };
 
 export default SingleVenueAdmin;
+
