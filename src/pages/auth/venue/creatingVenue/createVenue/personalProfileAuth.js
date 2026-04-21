@@ -381,10 +381,17 @@ const PersonalProfileAuth = () => {
       }
 
       if (selectedFiles.length > 0) {
+        const addrs = Array.isArray(createdVenue?.addresses)
+          ? createdVenue.addresses
+          : [];
+        const singleAddrId = addrs.length === 1 ? addrs[0].id : null;
         const docsFd = new FormData();
         docsFd.append("venueId", String(venueId));
         selectedFiles.forEach((file) => {
           docsFd.append("files", file);
+          if (singleAddrId != null) {
+            docsFd.append("venueAddressIds", String(singleAddrId));
+          }
         });
 
         const docsRes = await fetch(URL_MEDIA_UPLOAD_DOCUMENTS, {

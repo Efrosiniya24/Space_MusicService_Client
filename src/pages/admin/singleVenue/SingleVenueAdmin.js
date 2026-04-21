@@ -14,6 +14,7 @@ import login from "../../auth/admin/adminAuth.module.css";
 import notice from "../../auth/listener/login.module.css";
 
 import Header from "../../../Component/headerAdmin/HeaderAdmin";
+import VenueDocumentsPanel from "./VenueDocumentsPanel";
 import search from "../../../icons/search_black.png";
 import chevronDown from "../../../icons/down.png";
 import returnPage from "../../../icons/return.png";
@@ -632,6 +633,10 @@ const SingleVenueAdmin = () => {
                           </div>
                         </div>
                       </div>
+                      <VenueDocumentsPanel
+                        venue={venue}
+                        venueLoading={venueLoading}
+                      />
                     </div>
 
                     <div className={style.down}>

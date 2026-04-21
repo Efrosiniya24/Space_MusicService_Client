@@ -53,14 +53,19 @@ cursor: pointer;
 .firstPartUp{
     display: flex;
     flex-direction: row;
-    gap: 210px;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    width: 100%;
 }
 
 .venueInfo{
     display: flex;
     flex-direction: column;
     gap: 12px;
-    width: 800px;
+    flex: 1;
+    min-width: 0;
+    max-width: 800px;
 }
 
 .valueDescription {
@@ -504,4 +509,143 @@ cursor: pointer;
     line-height: 1.35;
     text-align: left;
     word-break: break-word;
+}
+
+.documentsPanel {
+    box-sizing: border-box;
+    width: 205px;
+    height: 248px;
+    flex-shrink: 0;
+    background-color: #D9D9D9;
+    border-radius: 24px;
+    padding: 10px 12px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow: hidden;
+}
+
+.documentsPanelTitle {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: #000000;
+    line-height: 1.2;
+}
+
+.documentsFilterWrap {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.documentsFilterTrigger {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: inherit;
+    gap: 4px;
+}
+
+.documentsFilterTrigger:focus-visible {
+    outline: 2px solid #468743;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.documentsFilterTriggerLabel {
+    font-size: 14px;
+    font-weight: 600;
+    color: #000000;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+.documentsFilterChevron {
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
+    object-fit: contain;
+}
+
+.documentsFilterList {
+    position: absolute;
+    z-index: 40;
+    left: 0;
+    right: 0;
+    top: 100%;
+    margin: 4px 0 0 0;
+    padding: 6px 0;
+    list-style: none;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    max-height: 140px;
+    overflow-y: auto;
+}
+
+.documentsFilterOption {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 6px 10px;
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    color: #333333;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.documentsFilterOption:hover {
+    background: #f0f0f0;
+}
+
+.documentsList {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.documentsListInner {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.documentsLink {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1E1736;
+    font-family: inherit;
+    word-break: break-word;
+    line-height: 1.25;
+}
+
+.documentsLink:hover {
+    text-decoration: underline;
+}
+
+.documentsListEmpty {
+    margin: 0;
+    font-size: 12px;
+    color: #666666;
 }
