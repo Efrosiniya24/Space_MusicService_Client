@@ -27,11 +27,40 @@
     width: 1187px;
     height: 1187px;
     padding: 28px 23px;
+    box-sizing: border-box;
+}
+
+.formIntro {
+    flex-shrink: 0;
+}
+
+.organizationsArea {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
 }
 
 .organizations{
     display: flex;
     flex-wrap: wrap;
+    align-content: flex-start;
     gap: 12px 20px;
+    width: 100%;
+    min-height: 0;
+}
+
+.loadHint {
+    margin: 0;
+    font-size: 14px;
+    color: #f0f0f0;
+}
+
+.orgCardWrap {
+    min-width: 0;
+}
+
+.orgsPagination {
+    background-color: transparent;
+    flex-shrink: 0;
 }
 

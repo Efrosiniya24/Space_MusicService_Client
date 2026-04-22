@@ -115,6 +115,7 @@ cursor: pointer;
     justify-items: start;
     width: max-content;
     max-width: 100%;
+    overflow: visible;
 }
 
 .contactRow {
@@ -158,6 +159,35 @@ cursor: pointer;
 
 .addressStatusLabel_denied {
     color: #DCAAAA;
+}
+
+.addressStatusHoverWrap {
+    position: relative;
+    align-self: center;
+    cursor: pointer;
+}
+
+.addressStatusHoverPanel {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 6px);
+    z-index: 80;
+    min-width: min(360px, calc(100vw - 48px));
+    max-width: 420px;
+    max-height: min(300px, 50vh);
+    overflow: auto;
+    padding: 10px 12px 12px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.15);
+    border: 1px solid #d0d0d0;
+    box-sizing: border-box;
+}
+
+.addressStatusHoverEmpty {
+    margin: 8px 4px;
+    font-size: 13px;
+    color: #666666;
 }
 
 .addressStatusCell {

@@ -18,8 +18,20 @@ import VenueDocumentsPanel from "./VenueDocumentsPanel";
 import search from "../../../icons/search_black.png";
 import chevronDown from "../../../icons/down.png";
 import returnPage from "../../../icons/return.png";
-
-const API_GATEWAY = "http://localhost:8080";
+import {
+  API_GATEWAY,
+  getVenueCoverImageUrl,
+  resolveVenueCoverFromDtoField,
+} from "../../../utils/venueMediaUrls";
+import {
+  AddressStatusChangePopover,
+  buildAddressRecordsFromVenue,
+  filterAddressRecordsByApiStatus,
+  mapUiStatusToApiParam,
+  mapVenueStatusForUi,
+  STATUS_LABEL,
+  urlVenueConfirm,
+} from "../venues/venueAddressStatusUi";
 
 const VENUE_SECTION_TABS = [
   { id: "addresses", label: "Адреса" },
@@ -34,21 +46,6 @@ function urlVenueById(id) {
 
 function urlVenueCurators(id) {
   return `${API_GATEWAY}/space/users/venueCurators/${id}`;
-}
-
-const STATUS_LABEL = {
-  PENDING: "Pending",
-  PROCESSING: "Processing",
-  APPROVED: "Approved",
-  DENIED: "Denied",
-};
-
-function resolveVenueCoverUrl(cover) {
-  if (cover == null || !String(cover).trim()) return null;
-  const c = String(cover).trim();
-  if (/^https?:\/\//i.test(c)) return c;
-  if (c.startsWith("/")) return `${API_GATEWAY}${c}`;
-  return `${API_GATEWAY}/${c}`;
 }
 
 const CURATOR_DEFAULT_ROW_HEIGHT = 53;
@@ -145,7 +142,8 @@ const SingleVenueAdmin = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [venue, setVenue] = useState(null);
   const [venueLoading, setVenueLoading] = useState(true);
-  const [coverBroken, setCoverBroken] = useState(false);
+  /** 0 — getVenueCover(venueId), 1 — поле cover + download, 2 — заглушка */
+  const [coverStep, setCoverStep] = useState(0);
   const [activeVenueSection, setActiveVenueSection] = useState(
     VENUE_SECTION_TABS[0].id,
   );
@@ -171,6 +169,13 @@ const SingleVenueAdmin = () => {
   );
   const curatorsTableScrollRef = useRef(null);
 
+  const [openStatusPanel, setOpenStatusPanel] = useState(null);
+  const [pendingStatusMenu, setPendingStatusMenu] = useState(null);
+  const [statusDraft, setStatusDraft] = useState(null);
+  const [statusPopoverBox, setStatusPopoverBox] = useState(null);
+  const statusPopoverRef = useRef(null);
+  const pendingStatusMenuAnchorRef = useRef(null);
+
   const addressStatusCounts = useMemo(() => {
     const raw = Array.isArray(venue?.addresses) ? venue.addresses : [];
     const active = raw.filter((a) => a && !a.deleted);
@@ -188,11 +193,77 @@ const SingleVenueAdmin = () => {
     return { pending, processing, confirmed, rejected };
   }, [venue?.addresses]);
 
+  const addressRecords = useMemo(
+    () => buildAddressRecordsFromVenue(venue),
+    [venue],
+  );
+
+  const closePendingStatusMenu = useCallback(() => {
+    setPendingStatusMenu(null);
+    setStatusDraft(null);
+    setStatusPopoverBox(null);
+    pendingStatusMenuAnchorRef.current = null;
+  }, []);
+
+  const updatePendingStatusPopoverPosition = useCallback(() => {
+    const el = pendingStatusMenuAnchorRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    if (r.width === 0 && r.height === 0) return;
+    setStatusPopoverBox({
+      top: r.bottom + 6,
+      left: r.left,
+      minWidth: Math.max(220, r.width),
+    });
+  }, []);
+
+  const openPendingAddressStatusMenu = useCallback(
+    (row, anchorElement, venueIdOverride) => {
+      setOpenStatusPanel(null);
+      pendingStatusMenuAnchorRef.current = anchorElement;
+      const r = anchorElement.getBoundingClientRect();
+      if (r.width > 0 || r.height > 0) {
+        setStatusPopoverBox({
+          top: r.bottom + 6,
+          left: r.left,
+          minWidth: Math.max(220, r.width),
+        });
+      }
+      setPendingStatusMenu({
+        addressId: row.id,
+        venueId: venueIdOverride ?? row.venueId,
+        currentStatus: mapVenueStatusForUi(row.status),
+      });
+      setStatusDraft(null);
+    },
+    [],
+  );
+
+  const leaveStatusPanel = useCallback((e) => {
+    const rel = e.relatedTarget;
+    if (rel && e.currentTarget.contains(rel)) return;
+    setOpenStatusPanel(null);
+  }, []);
+
+  useEffect(() => {
+    if (!openStatusPanel) return undefined;
+    const onKey = (e) => {
+      if (e.key !== "Escape") return;
+      setOpenStatusPanel(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [openStatusPanel]);
+
   const coverSrc = useMemo(() => {
-    if (coverBroken) return returnPage;
-    const u = resolveVenueCoverUrl(venue?.cover);
-    return u || returnPage;
-  }, [venue?.cover, coverBroken]);
+    if (coverStep >= 2) return returnPage;
+    if (coverStep === 1) {
+      return resolveVenueCoverFromDtoField(venue?.cover) || returnPage;
+    }
+    const byId = getVenueCoverImageUrl(venue?.id);
+    if (byId) return byId;
+    return resolveVenueCoverFromDtoField(venue?.cover) || returnPage;
+  }, [venue?.id, venue?.cover, coverStep]);
 
   const loadVenue = useCallback(async () => {
     const id = Number(venueId);
@@ -203,7 +274,7 @@ const SingleVenueAdmin = () => {
       return;
     }
     setVenueLoading(true);
-    setCoverBroken(false);
+    setCoverStep(0);
     const token = localStorage.getItem("accessToken");
     try {
       const res = await fetch(urlVenueById(id), {
@@ -220,6 +291,60 @@ const SingleVenueAdmin = () => {
       setVenueLoading(false);
     }
   }, [venueId]);
+
+  const handlePendingAddressStatusSave = useCallback(async () => {
+    if (!pendingStatusMenu || !statusDraft) return;
+    const statusParam = mapUiStatusToApiParam(statusDraft);
+    const token = localStorage.getItem("accessToken");
+    const url = new URL(urlVenueConfirm(pendingStatusMenu.addressId));
+    url.searchParams.set("status", statusParam);
+    try {
+      const res = await fetch(url.toString(), {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) throw new Error("confirm_failed");
+      setSuccessMessage("Статус обновлён");
+      setErrorMessage("");
+      closePendingStatusMenu();
+      await loadVenue();
+    } catch {
+      setErrorMessage("Не удалось обновить статус");
+    }
+  }, [pendingStatusMenu, statusDraft, closePendingStatusMenu, loadVenue]);
+
+  useLayoutEffect(() => {
+    if (!pendingStatusMenu) return undefined;
+    updatePendingStatusPopoverPosition();
+    const onScrollOrResize = () => updatePendingStatusPopoverPosition();
+    window.addEventListener("scroll", onScrollOrResize, true);
+    window.addEventListener("resize", onScrollOrResize);
+    return () => {
+      window.removeEventListener("scroll", onScrollOrResize, true);
+      window.removeEventListener("resize", onScrollOrResize);
+    };
+  }, [
+    pendingStatusMenu,
+    statusDraft,
+    updatePendingStatusPopoverPosition,
+  ]);
+
+  useEffect(() => {
+    if (!pendingStatusMenu) return undefined;
+    const onPointerDown = (e) => {
+      const pop = statusPopoverRef.current;
+      const anchor = pendingStatusMenuAnchorRef.current;
+      if (pop?.contains(e.target)) return;
+      if (anchor?.contains(e.target)) return;
+      closePendingStatusMenu();
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("touchstart", onPointerDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("touchstart", onPointerDown);
+    };
+  }, [pendingStatusMenu, closePendingStatusMenu]);
 
   useEffect(() => {
     loadVenue();
@@ -507,6 +632,62 @@ const SingleVenueAdmin = () => {
   const email = venue?.email != null ? String(venue.email) : "—";
   const phone = venue?.phone != null ? String(venue.phone) : "—";
 
+  const renderStatusAddressesPanel = (apiStatus) => {
+    if (openStatusPanel !== apiStatus) return null;
+    const items = filterAddressRecordsByApiStatus(addressRecords, apiStatus);
+    const vid = venue?.id;
+    return (
+      <div
+        className={style.addressStatusHoverPanel}
+        role="dialog"
+        aria-label="Адреса по статусу"
+      >
+        {items.length === 0 ? (
+          <p className={style.addressStatusHoverEmpty}>Нет адресов</p>
+        ) : (
+          <ul className={adminStyle.venueMetricDialogList}>
+            {items.map((it) => {
+              const statusKey = mapVenueStatusForUi(it.status);
+              return (
+                <li
+                  key={it.id}
+                  className={adminStyle.venueMetricDialogAddressRow}
+                >
+                  <div className={adminStyle.venueMetricDialogAddressText}>
+                    <span className={adminStyle.venueMetricDialogLine}>
+                      {it.addressCity}
+                    </span>
+                    {", "}
+                    {it.city}
+                    {" – "}
+                    {it.country}
+                  </div>
+                  {vid != null ? (
+                    <button
+                      type="button"
+                      className={adminStyle.statusBadgeButton}
+                      aria-haspopup="dialog"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openPendingAddressStatusMenu(it, e.currentTarget, vid);
+                      }}
+                    >
+                      <span
+                        className={`${adminStyle.statusBadge} ${adminStyle[`status_${statusKey}`] || ""}`}
+                      >
+                        {STATUS_LABEL[statusKey] ?? statusKey}
+                      </span>
+                    </button>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className={login.mainLogin}>
       {errorMessage && (
@@ -551,9 +732,20 @@ const SingleVenueAdmin = () => {
                       <div className={style.venueInfo}>
                         <div className={style.valueDescription}>
                           <img
+                            key={`${venue?.id ?? "v"}-${coverStep}`}
                             src={coverSrc}
                             alt=""
-                            onError={() => setCoverBroken(true)}
+                            onError={() => {
+                              setCoverStep((step) => {
+                                if (step >= 2) return 2;
+                                if (step === 0) {
+                                  const legacy =
+                                    resolveVenueCoverFromDtoField(venue?.cover);
+                                  return legacy ? 1 : 2;
+                                }
+                                return 2;
+                              });
+                            }}
                           />
                           <div className={style.nameDescription}>
                             <h1>
@@ -575,29 +767,45 @@ const SingleVenueAdmin = () => {
                               {venueLoading ? "…" : email}
                             </span>
                           </div>
-                          <div className={style.addressStatusCell}>
-                            <span
-                              className={`${style.addressStatusLabel} ${style.addressStatusLabel_pending}`}
-                            >
-                              {STATUS_LABEL.PENDING}
-                            </span>
-                            <span
-                              className={`${style.addressStatusCount} ${style.addressStatusCount_pending}`}
-                            >
-                              {addressStatusCounts.pending}
-                            </span>
+                          <div
+                            className={style.addressStatusHoverWrap}
+                            onMouseEnter={() => setOpenStatusPanel("PENDING")}
+                            onMouseLeave={leaveStatusPanel}
+                          >
+                            <div className={style.addressStatusCell}>
+                              <span
+                                className={`${style.addressStatusLabel} ${style.addressStatusLabel_pending}`}
+                              >
+                                {STATUS_LABEL.PENDING}
+                              </span>
+                              <span
+                                className={`${style.addressStatusCount} ${style.addressStatusCount_pending}`}
+                              >
+                                {addressStatusCounts.pending}
+                              </span>
+                            </div>
+                            {renderStatusAddressesPanel("PENDING")}
                           </div>
-                          <div className={style.addressStatusCell}>
-                            <span
-                              className={`${style.addressStatusLabel} ${style.addressStatusLabel_processing}`}
-                            >
-                              {STATUS_LABEL.PROCESSING}
-                            </span>
-                            <span
-                              className={`${style.addressStatusCount} ${style.addressStatusCount_processing}`}
-                            >
-                              {addressStatusCounts.processing}
-                            </span>
+                          <div
+                            className={style.addressStatusHoverWrap}
+                            onMouseEnter={() =>
+                              setOpenStatusPanel("PROCESSING")
+                            }
+                            onMouseLeave={leaveStatusPanel}
+                          >
+                            <div className={style.addressStatusCell}>
+                              <span
+                                className={`${style.addressStatusLabel} ${style.addressStatusLabel_processing}`}
+                              >
+                                {STATUS_LABEL.PROCESSING}
+                              </span>
+                              <span
+                                className={`${style.addressStatusCount} ${style.addressStatusCount_processing}`}
+                              >
+                                {addressStatusCounts.processing}
+                              </span>
+                            </div>
+                            {renderStatusAddressesPanel("PROCESSING")}
                           </div>
                           <div className={style.contactRow}>
                             <span className={style.contactLabel}>
@@ -607,29 +815,47 @@ const SingleVenueAdmin = () => {
                               {venueLoading ? "…" : phone}
                             </span>
                           </div>
-                          <div className={style.addressStatusCell}>
-                            <span
-                              className={`${style.addressStatusLabel} ${style.addressStatusLabel_approved}`}
-                            >
-                              {STATUS_LABEL.APPROVED}
-                            </span>
-                            <span
-                              className={`${style.addressStatusCount} ${style.addressStatusCount_approved}`}
-                            >
-                              {addressStatusCounts.confirmed}
-                            </span>
+                          <div
+                            className={style.addressStatusHoverWrap}
+                            onMouseEnter={() =>
+                              setOpenStatusPanel("CONFIRMED")
+                            }
+                            onMouseLeave={leaveStatusPanel}
+                          >
+                            <div className={style.addressStatusCell}>
+                              <span
+                                className={`${style.addressStatusLabel} ${style.addressStatusLabel_approved}`}
+                              >
+                                {STATUS_LABEL.APPROVED}
+                              </span>
+                              <span
+                                className={`${style.addressStatusCount} ${style.addressStatusCount_approved}`}
+                              >
+                                {addressStatusCounts.confirmed}
+                              </span>
+                            </div>
+                            {renderStatusAddressesPanel("CONFIRMED")}
                           </div>
-                          <div className={style.addressStatusCell}>
-                            <span
-                              className={`${style.addressStatusLabel} ${style.addressStatusLabel_denied}`}
-                            >
-                              {STATUS_LABEL.DENIED}
-                            </span>
-                            <span
-                              className={`${style.addressStatusCount} ${style.addressStatusCount_denied}`}
-                            >
-                              {addressStatusCounts.rejected}
-                            </span>
+                          <div
+                            className={style.addressStatusHoverWrap}
+                            onMouseEnter={() =>
+                              setOpenStatusPanel("REJECTED")
+                            }
+                            onMouseLeave={leaveStatusPanel}
+                          >
+                            <div className={style.addressStatusCell}>
+                              <span
+                                className={`${style.addressStatusLabel} ${style.addressStatusLabel_denied}`}
+                              >
+                                {STATUS_LABEL.DENIED}
+                              </span>
+                              <span
+                                className={`${style.addressStatusCount} ${style.addressStatusCount_denied}`}
+                              >
+                                {addressStatusCounts.rejected}
+                              </span>
+                            </div>
+                            {renderStatusAddressesPanel("REJECTED")}
                           </div>
                         </div>
                       </div>
@@ -1267,6 +1493,17 @@ const SingleVenueAdmin = () => {
           </div>
         </div>
       </div>
+      {pendingStatusMenu && statusPopoverBox ? (
+        <AddressStatusChangePopover
+          currentStatus={pendingStatusMenu.currentStatus}
+          draftStatus={statusDraft}
+          onSelect={setStatusDraft}
+          onSave={handlePendingAddressStatusSave}
+          popoverRef={statusPopoverRef}
+          styleBox={statusPopoverBox}
+          radioGroupName={`single-venue-addr-${pendingStatusMenu.addressId}`}
+        />
+      ) : null}
     </div>
   );
 };

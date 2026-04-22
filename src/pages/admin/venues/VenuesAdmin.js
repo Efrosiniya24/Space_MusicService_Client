@@ -9,6 +9,15 @@ import React, {
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import style from "./VenueAdmin.module.css";
+import {
+  AddressStatusChangePopover,
+  filterAddressRecordsByApiStatus,
+  mapUiStatusToApiParam,
+  mapVenueStatusForUi,
+  STATUS_LABEL,
+  urlVenueConfirm,
+  VenueMetricDetailDialog,
+} from "./venueAddressStatusUi";
 import login from "../../auth/admin/adminAuth.module.css";
 import notice from "../../auth/listener/login.module.css";
 
@@ -19,40 +28,8 @@ const API_GATEWAY = "http://localhost:8080";
 const URL_VENUE_ALL = `${API_GATEWAY}/space/venue/all`;
 const URL_PENDING_COUNT = `${API_GATEWAY}/space/system/venue/count/pending`;
 
-function urlVenueConfirm(id) {
-  return `${API_GATEWAY}/space/system/venue/confirm/${id}`;
-}
-
-function mapUiStatusToApiParam(uiKey) {
-  switch (uiKey) {
-    case "APPROVED":
-      return "CONFIRMED";
-    case "DENIED":
-      return "REJECTED";
-    default:
-      return uiKey;
-  }
-}
-
 const DEFAULT_ROW_HEIGHT = 53;
 const MIN_VISIBLE_ROWS = 4;
-
-const STATUS_LABEL = {
-  PENDING: "Pending",
-  PROCESSING: "Processing",
-  APPROVED: "Approved",
-  DENIED: "Denied",
-};
-
-const ALL_STATUS_KEYS = ["PENDING", "PROCESSING", "APPROVED", "DENIED"];
-
-function mapVenueStatusForUi(apiStatus) {
-  const s = String(apiStatus ?? "").toUpperCase();
-  if (s === "CONFIRMED") return "APPROVED";
-  if (s === "REJECTED") return "DENIED";
-  if (s === "PROCESSING") return "PROCESSING";
-  return "PENDING";
-}
 
 function toCreatedYmd(createdAt) {
   if (createdAt == null) return "";
@@ -176,14 +153,6 @@ function formatDate(ymd) {
   return `${d}.${m}.${y}`;
 }
 
-function filterAddressRecordsByApiStatus(records, apiStatus) {
-  const target = String(apiStatus).toUpperCase();
-  return (Array.isArray(records) ? records : []).filter((r) => {
-    const st = String(r?.status ?? "PENDING").toUpperCase();
-    return st === target;
-  });
-}
-
 function SortArrows({ active, direction }) {
   return (
     <span
@@ -197,159 +166,6 @@ function SortArrows({ active, direction }) {
         className={`${style.sortArrowDown} ${active && direction === "desc" ? style.sortArrowLit : ""}`}
       />
     </span>
-  );
-}
-
-const METRIC_DETAIL_TITLE = {
-  addresses: "Адреса",
-  cities: "Города",
-  countries: "Страны",
-};
-
-function VenueMetricDetailDialog({ detail, onClose, onAddressStatusClick }) {
-  if (!detail || typeof document === "undefined") return null;
-  const title = METRIC_DETAIL_TITLE[detail.kind] ?? "";
-  const count = Array.isArray(detail.items) ? detail.items.length : 0;
-  const headline = `${title} (${count}) – ${detail.venueName ?? ""}`;
-  return createPortal(
-    <div
-      className={style.venueMetricDialogBackdrop}
-      onClick={onClose}
-      role="presentation"
-    >
-      <div
-        className={style.venueMetricDialog}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="venue-metric-dialog-title"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className={style.venueMetricDialogHeader}>
-          <h2
-            id="venue-metric-dialog-title"
-            className={style.venueMetricDialogTitle}
-          >
-            {headline}
-          </h2>
-          <button
-            type="button"
-            className={style.venueMetricDialogClose}
-            onClick={onClose}
-            aria-label="Закрыть"
-          >
-            ×
-          </button>
-        </div>
-        <ul className={style.venueMetricDialogList}>
-          {detail.kind === "countries" &&
-            detail.items.map((it, i) => (
-              <li key={`${it.country}-${i}`}>{it.country}</li>
-            ))}
-          {detail.kind === "cities" &&
-            detail.items.map((it, i) => (
-              <li key={`${it.city}-${it.country}-${i}`}>
-                {it.city}
-                {" – "}
-                {it.country}
-              </li>
-            ))}
-          {detail.kind === "addresses" &&
-            detail.items.map((it) => {
-              const statusKey = mapVenueStatusForUi(it.status);
-              return (
-                <li key={it.id} className={style.venueMetricDialogAddressRow}>
-                  <div className={style.venueMetricDialogAddressText}>
-                    <span className={style.venueMetricDialogLine}>
-                      {it.addressCity}
-                    </span>
-                    {", "}
-                    {it.city}
-                    {" – "}
-                    {it.country}
-                  </div>
-                  {onAddressStatusClick && detail.venueId != null ? (
-                    <button
-                      type="button"
-                      className={style.statusBadgeButton}
-                      aria-haspopup="dialog"
-                        onClick={(e) => {
-                        e.stopPropagation();
-                        onAddressStatusClick(it, e.currentTarget, detail.venueId);
-                      }}
-                    >
-                      <span
-                        className={`${style.statusBadge} ${style[`status_${statusKey}`] || ""}`}
-                      >
-                        {STATUS_LABEL[statusKey] ?? statusKey}
-                      </span>
-                    </button>
-                  ) : null}
-                </li>
-              );
-            })}
-        </ul>
-      </div>
-    </div>,
-    document.body,
-  );
-}
-
-function AddressStatusChangePopover({
-  currentStatus,
-  draftStatus,
-  onSelect,
-  onSave,
-  popoverRef,
-  styleBox,
-  radioGroupName,
-}) {
-  const otherKeys = ALL_STATUS_KEYS.filter((k) => k !== currentStatus);
-
-  if (typeof document === "undefined" || !styleBox) return null;
-
-  return createPortal(
-    <div
-      ref={popoverRef}
-      className={style.statusPopover}
-      style={{
-        position: "fixed",
-        top: styleBox.top,
-        left: styleBox.left,
-        minWidth: styleBox.minWidth,
-        zIndex: 10050,
-      }}
-      role="dialog"
-      aria-label="Изменить статус"
-    >
-      <div className={style.statusPopoverTitle}>Изменить статус</div>
-      <div className={style.statusPopoverList} role="listbox">
-        {otherKeys.map((key) => (
-          <label key={key} className={style.statusPopoverOption}>
-            <input
-              type="radio"
-              name={radioGroupName}
-              value={key}
-              checked={draftStatus === key}
-              onChange={() => onSelect(key)}
-            />
-            <span
-              className={`${style.statusBadge} ${style[`status_${key}`] || ""} ${style.statusPopoverBadge}`}
-            >
-              {STATUS_LABEL[key] ?? key}
-            </span>
-          </label>
-        ))}
-      </div>
-      <button
-        type="button"
-        className={style.statusPopoverSave}
-        disabled={!draftStatus}
-        onClick={onSave}
-      >
-        Сохранить
-      </button>
-    </div>,
-    document.body,
   );
 }
 
@@ -940,7 +756,7 @@ const VenuesAdmin = () => {
                           />
                         </button>
                       </th>
-                      <th scope="col">
+                      <th scope="col" className={style.venueStatusMetricCol}>
                         <button
                           type="button"
                           className={style.thSort}
@@ -964,7 +780,7 @@ const VenuesAdmin = () => {
                           />
                         </button>
                       </th>
-                      <th scope="col">
+                      <th scope="col" className={style.venueStatusMetricCol}>
                         <button
                           type="button"
                           className={style.thSort}
@@ -988,7 +804,7 @@ const VenuesAdmin = () => {
                           />
                         </button>
                       </th>
-                      <th scope="col">
+                      <th scope="col" className={style.venueStatusMetricCol}>
                         <button
                           type="button"
                           className={style.thSort}
@@ -1012,7 +828,7 @@ const VenuesAdmin = () => {
                           />
                         </button>
                       </th>
-                      <th scope="col">
+                      <th scope="col" className={style.venueStatusMetricCol}>
                         <button
                           type="button"
                           className={style.thSort}
@@ -1155,7 +971,9 @@ const VenuesAdmin = () => {
                                   ) : null}
                                 </div>
                               </td>
-                              <td className={style.venueMetricCell}>
+                              <td
+                                className={`${style.venueMetricCell} ${style.venueStatusMetricCol}`}
+                              >
                                 <div className={style.venueMetricCellInner}>
                                   <span className={style.venueMetricNum}>
                                     {row.addrPending}
@@ -1184,7 +1002,9 @@ const VenuesAdmin = () => {
                                   ) : null}
                                 </div>
                               </td>
-                              <td className={style.venueMetricCell}>
+                              <td
+                                className={`${style.venueMetricCell} ${style.venueStatusMetricCol}`}
+                              >
                                 <div className={style.venueMetricCellInner}>
                                   <span className={style.venueMetricNum}>
                                     {row.addrProcessing}
@@ -1213,7 +1033,9 @@ const VenuesAdmin = () => {
                                   ) : null}
                                 </div>
                               </td>
-                              <td className={style.venueMetricCell}>
+                              <td
+                                className={`${style.venueMetricCell} ${style.venueStatusMetricCol}`}
+                              >
                                 <div className={style.venueMetricCellInner}>
                                   <span className={style.venueMetricNum}>
                                     {row.addrConfirmed}
@@ -1242,7 +1064,9 @@ const VenuesAdmin = () => {
                                   ) : null}
                                 </div>
                               </td>
-                              <td className={style.venueMetricCell}>
+                              <td
+                                className={`${style.venueMetricCell} ${style.venueStatusMetricCol}`}
+                              >
                                 <div className={style.venueMetricCellInner}>
                                   <span className={style.venueMetricNum}>
                                     {row.addrRejected}

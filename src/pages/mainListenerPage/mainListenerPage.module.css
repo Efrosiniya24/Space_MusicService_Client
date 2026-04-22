@@ -189,6 +189,7 @@
     width: 125px;
     height: 125px;
     box-shadow:  11px 12px 41px rgba(0,0,0,.40);
+    cursor: pointer;
 }
 
 .org img{
@@ -197,7 +198,7 @@
 }
 
 .org::after {
-    box-shadow: inset 0px -28px 80px rgba(0,0,0,.60);
+    box-shadow: inset 0px -28px 80px rgba(0, 0, 0, 0.345);
 }
 
 .iconInPhotoText img{

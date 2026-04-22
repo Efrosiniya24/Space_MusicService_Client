@@ -107,8 +107,6 @@
 .pendingToolbarCount {
     position: absolute;
     right: -10px;
-    top: 50%;
-    transform: translateY(-50%);
     min-width: 28px;
     height: 28px;
     padding: 0 7px;
@@ -127,7 +125,12 @@
 }
 
 .pendingToolbarCount:hover {
-    filter: brightness(1.06);
+    background-color: #52994f;
+}
+
+.pendingToolbarCount:focus-visible {
+    outline: 2px solid #2a6128;
+    outline-offset: 2px;
 }
 
 .search img{
@@ -208,6 +211,12 @@
     border-bottom: 1px solid #e0e0e0;
     vertical-align: middle;
     background-color: #efefef;
+}
+
+.venuesTable th.venueStatusMetricCol,
+.venuesTable td.venueStatusMetricCol {
+    background-color: #efefef;
+    color: #3a3a3a;
 }
 
 .venuesTable thead th:first-child {
