@@ -59,8 +59,49 @@
     min-width: 0;
 }
 
+.orgCardLink {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    border-radius: 20px;
+    outline: none;
+}
+
+.orgCardLink:focus-visible {
+    outline: 2px solid #e0e0e0;
+    outline-offset: 3px;
+}
+
 .orgsPagination {
-    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 15px;
     flex-shrink: 0;
+    background: none;
+}
+
+.orgsPageCurrent {
+    background-color: transparent;
+    color: #f0f0f0;
+}
+
+/* Светлый цвет и без «глобального» opacity: на зелёном #5C6E5C серые ◀▶ не видны,
+   а pageNav:disabled даёт opacity 0.35 — стрелки пропадают полностью */
+button.orgsPageNav {
+    color: #f0f0f0;
+    min-width: 44px;
+    opacity: 1;
+}
+
+button.orgsPageNav:not(:disabled):hover {
+    color: #000000;
+}
+
+button.orgsPageNav:disabled {
+    opacity: 1;
+    color: rgba(240, 240, 240, 0.4);
+    cursor: not-allowed;
 }
 

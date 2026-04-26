@@ -1,8 +1,515 @@
-.main{
+.orgPageRoot {
+    min-height: 100vh;
+    margin-bottom: 0;
+    padding-bottom: 62px;
+    box-sizing: border-box;
+}
+
+.orgPageMain {
+    flex: 1;
     display: flex;
-    gap:100px;
+    min-height: 0;
+    max-width: 100%;
+    align-items: stretch;
+}
+
+.form{
+    display: flex;
+    flex-direction: column;
+    background-color: #E6E0B8;
+    border-radius: 20px;
+    gap: 36px;
+    width: 1194px;
+    min-height: 896px;
+    height: auto;
+    max-height: none;
+    flex: 0 1 auto;
+    align-self: flex-start;
+    padding: 28px 40px;
+    box-sizing: border-box;
     align-items: flex-start;
-    justify-content: flex-start;
-    padding-left: 0px;
-    margin-left: 0px;
+}
+
+.return {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: inherit;
+    box-sizing: border-box;
+}
+
+.return img {
+width: 18px;
+height: 18px;
+cursor: pointer;
+}
+
+.return p{
+font-weight: bold;
+font-size: 20px;
+cursor: pointer;
+}
+
+.venueInfo {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 1122px;
+    flex: 1;
+    min-height: 0;
+}
+
+.logo {
+    flex-shrink: 0;
+    width: 380px;
+    height: 380px;
+    max-width: 100%;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0px 4px 8px 0px #00000025;
+    background-color: #c8c4a8;
+    box-sizing: border-box;
+}
+
+.logo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+}
+
+.hint {
+    margin: 0;
+    font-size: 15px;
+    color: #333333;
+    max-width: 720px;
+    line-height: 1.45;
+}
+
+.venueHead {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 24px;
+    width: 100%;
+}
+
+.venueMeta {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+}
+
+.venueMetaBlock {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    min-width: 0;
+}
+
+.venueMetaText {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    min-width: 0;
+}
+
+.venueMetaContacts {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.venueName {
+    margin: 0;
+    font-size: 25px;
+    font-weight: 700;
+    color: #2a6128;
+    line-height: 1.2;
+    word-break: break-word;
+}
+
+.venueDescription {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 400;
+    color: #000000;
+    line-height: 1.45;
+    word-break: break-word;
+    max-height: 220px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #666 transparent;
+}
+
+.venueDescription::-webkit-scrollbar {
+    width: 8px;
+}
+
+.venueDescription::-webkit-scrollbar-thumb {
+    background-color: #666666;
+    border-radius: 4px;
+}
+
+.venueRow {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 16px;
+    color: #333333;
+    align-items: baseline;
+}
+
+.venueLabel {
+    font-weight: 700;
+    font-size: 17px;
+    flex-shrink: 0;
+}
+
+.venueRowSite {
+    flex-wrap: nowrap;
+    min-width: 0;
+    align-items: center;
+}
+
+.venueWebLinkScroll {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.venueWebLinkScroll::-webkit-scrollbar {
+    display: none;
+}
+
+.venueWebLink {
+    color: #1e1736;
+    font-weight: 600;
+    display: inline-block;
+    white-space: nowrap;
+    line-height: 1.35;
+}
+
+.venueWebLink:hover {
+    text-decoration: underline;
+}
+
+.venuePageColumn {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 25px;
+    width: 100%;
+    max-width: 1122px;
+}
+
+.venuePageColumn .venueInfo {
+    flex: 0 0 auto;
+}
+
+.venueAddressesSection {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    width: 100%;
+    min-width: 0;
+}
+
+.venueAddressesToolbar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    flex-wrap: nowrap;
+    min-width: 0;
+}
+
+.venueAddressesTitle {
+    box-sizing: border-box;
+    flex-shrink: 0;
+    min-width: 222px;
+    width: max-content;
+    max-width: 100%;
+    height: 59px;
+    margin: 0;
+    padding: 14px 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 25px;
+    font-weight: 700;
+    color: #2a6128;
+    border-radius: 30px;
+    border: 5px solid #dec800;
+    background-color: transparent;
+    white-space: nowrap;
+}
+
+.venuePreferencesBtn {
+    box-sizing: border-box;
+    flex-shrink: 0;
+    min-width: 181px;
+    width: max-content;
+    max-width: 100%;
+    height: 70px;
+    margin: 0;
+    padding: 11px 22px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    background-color: #1e1736;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: center;
+    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.145);
+    font-family: inherit;
+    white-space: nowrap;
+}
+
+.venuePreferencesBtn:hover:not(:disabled) {
+    filter: brightness(1.06);
+}
+
+.venuePreferencesBtn:active:not(:disabled) {
+    transform: translateY(1px);
+    box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.12);
+}
+
+.venuePreferencesBtn:disabled {
+    cursor: not-allowed;
+    opacity: 0.48;
+}
+
+.venueAddressesGridWrap {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    width: 100%;
+    min-width: 0;
+}
+
+.venueAddressesGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 300px);
+    column-gap: min(111px, max(8px, calc((100% - 900px) / 2)));
+    row-gap: 20px;
+    justify-content: start;
+    width: 100%;
+    min-width: 0;
+}
+
+.addressPagination {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    flex-shrink: 0;
+}
+
+.addressPageNav {
+    border: none;
+    background: transparent;
+    color: #2a6128;
+    font-size: 22px;
+    cursor: pointer;
+    line-height: 1;
+    font-family: inherit;
+    border-radius: 10px;
+    padding: 6px 12px;
+}
+
+.addressPageNav:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.addressPageNav:not(:disabled):hover {
+    color: #1e1736;
+}
+
+.addressPageCurrent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 14px;
+    background-color: #c8c4a8;
+    color: #1e1736;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.venueCityCard {
+    box-sizing: border-box;
+    width: 300px;
+    padding: 23px;
+    border-radius: 40px;
+    background-color: #ded8b4;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 6px;
+    row-gap: 6px;
+    align-items: start;
+    min-width: 0;
+}
+
+.venueCityPrefix {
+    grid-column: 1;
+    grid-row: 1;
+    margin: 0;
+    padding: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: #2a6128;
+    line-height: 1.25;
+}
+
+.venueCityRest {
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0;
+    padding: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: #2a6128;
+    line-height: 1.25;
+    min-width: 0;
+}
+
+.venueCityRestFull {
+    grid-column: 1 / -1;
+    grid-row: 1;
+}
+
+.venueCityAddresses {
+    grid-column: 2;
+    grid-row: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.venueCityAddressesFull {
+    grid-column: 1 / -1;
+}
+
+.venueAddressRow {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-width: 0;
+}
+
+.venueAddressRowClickable {
+    cursor: pointer;
+    border-radius: 10px;
+    margin: 0 -4px;
+    padding: 4px;
+}
+
+
+.venueAddressRowClickable:focus-visible {
+    outline: 2px solid #2a6128;
+    outline-offset: 2px;
+}
+
+.venueAddressTextScroll {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.venueAddressTextScroll::-webkit-scrollbar {
+    display: none;
+}
+
+.venueAddressText {
+    display: inline-block;
+    font-size: 17px;
+    font-weight: 600;
+    color: #000000;
+    white-space: nowrap;
+    line-height: 1.35;
+}
+
+.venueAddressCheck {
+    box-sizing: border-box;
+    flex-shrink: 0;
+    width: 15px;
+    height: 15px;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background-color: #f5f5f5;
+    cursor: inherit;
+    align-self: center;
+    pointer-events: none;
+}
+
+.venueAddressCheckInactive {
+    opacity: 0.45;
+}
+
+.venueAddressCheckOn {
+    background-color: #468743;
+}
+
+.venuePreferencesBtn:focus-visible {
+    outline: 2px solid #dec800;
+    outline-offset: 2px;
+}
+
+.venueAddressesEmpty {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 640px;
+    padding: 22px 26px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, #e8e2c4 0%, #ded8b4 100%);
+    border: 1px dashed rgba(42, 97, 40, 0.35);
+}
+
+.venueAddressesEmptyTitle {
+    margin: 0 0 8px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #2a6128;
+}
+
+.venueAddressesEmptyText {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.45;
+    color: #444444;
 }

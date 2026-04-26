@@ -213,9 +213,8 @@
     background-color: #efefef;
 }
 
-.venuesTable th.venueStatusMetricCol,
 .venuesTable td.venueStatusMetricCol {
-    background-color: #efefef;
+    background-color: #e7e6e6;
     color: #3a3a3a;
 }
 

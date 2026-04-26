@@ -1,0 +1,1304 @@
+.addPrefsInner {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+    max-width: 1122px;
+    min-width: 0;
+}
+
+.addPrefsBreadcrumbRow {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+}
+
+.addPrefsBreadcrumbBack {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+    text-decoration: none;
+    color: inherit;
+}
+
+.addPrefsBreadcrumbBack:hover {
+    text-decoration: none;
+    filter: brightness(1.08);
+}
+
+.addPrefsBreadcrumbIcon {
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+
+.addPrefsBreadcrumbLinks {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 8px;
+    min-width: 0;
+}
+
+.addPrefsCrumbLink {
+    font-weight: 700;
+    font-size: 20px;
+    color: #1e1736;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.addPrefsCrumbLink:hover {
+    text-decoration: none;
+    color: #2a6128;
+}
+
+.addPrefsCrumbVenue {
+    font-weight: 700;
+    font-size: 20px;
+    color: #1e1736;
+    text-decoration: none;
+    cursor: pointer;
+    min-width: 0;
+    word-break: break-word;
+}
+
+.addPrefsCrumbVenue:hover {
+    text-decoration: none;
+    color: #2a6128;
+}
+
+.addPrefsCrumbSep {
+    font-weight: 700;
+    font-size: 20px;
+    color: #555555;
+    flex-shrink: 0;
+}
+
+.addPrefsPageHeading {
+    margin: 0;
+    font-size: 25px;
+    font-weight: 700;
+    color: #2a6128;
+    line-height: 1.2;
+}
+
+.addPrefsHeroPanel {
+    box-sizing: border-box;
+    width: 1112px;
+    max-width: 100%;
+    min-height: 240px;
+    max-height: 436px;
+    padding: 15px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 40px;
+    background-color: #ded8b4;
+    border: none;
+    border-radius: 20px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #666 transparent;
+}
+
+.addPrefsHeroPanel::-webkit-scrollbar {
+    width: 8px;
+}
+
+.addPrefsHeroPanel::-webkit-scrollbar-thumb {
+    background-color: #666666;
+    border-radius: 4px;
+}
+
+.addPrefsHeroImgWrap {
+    flex-shrink: 0;
+    width: 214px;
+    height: 214px;
+    border-radius: 20px;
+    overflow: hidden;
+    background-color: #c8c4a8;
+    box-sizing: border-box;
+    box-shadow: 0px 4px 8px 0px #00000025;
+}
+
+.addPrefsHeroImgWrap img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+}
+
+.addPrefsHeroContent {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.addPrefsVenueName {
+    margin: 0;
+    font-size: 25px;
+    font-weight: 700;
+    color: #2a6128;
+    line-height: 1.2;
+    word-break: break-word;
+}
+
+.addPrefsAddressCards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px 16px;
+    width: 100%;
+    min-width: 0;
+}
+
+.addPrefsAddressCard {
+    box-sizing: border-box;
+    min-width: 0;
+    padding: 14px 16px 14px 14px;
+    border-radius: 28px;
+    background-color: #ebeae5;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.addPrefsAddressCardClickable {
+    cursor: pointer;
+    outline: none;
+}
+
+.addPrefsAddressCardClickable:focus-visible {
+    outline: 2px solid #2a6128;
+    outline-offset: 2px;
+}
+
+.addPrefsAddressCardCity {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: #2a6128;
+    line-height: 1.25;
+    word-break: break-word;
+}
+
+.addPrefsAddressCardRow {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-width: 0;
+}
+
+.addPrefsNoAddresses {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.45;
+    color: #444444;
+    grid-column: 1 / -1;
+}
+
+.addPrefsEmpty {
+    box-sizing: border-box;
+    max-width: 640px;
+    padding: 20px 22px;
+    border-radius: 22px;
+    background: linear-gradient(135deg, #e8e2c4 0%, #ded8b4 100%);
+    border: 1px dashed rgba(42, 97, 40, 0.35);
+}
+
+.addPrefsEmptyTitle {
+    margin: 0 0 8px;
+    font-size: 17px;
+    font-weight: 700;
+    color: #2a6128;
+}
+
+.addPrefsEmptyText {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.45;
+    color: #444444;
+}
+
+.addPrefsBackLink {
+    color: #1e1736;
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.addPrefsBackLink:hover {
+    color: #2a6128;
+}
+
+/* —— второй блок: настройки + слоты треков/плейлистов —— */
+
+.addPrefsMainBlock {
+    box-sizing: border-box;
+    width: 1112px;
+    max-width: 100%;
+    padding: 20px 18px 24px;
+    background-color: #ded8b4;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.addPrefsThreeCol {
+    display: grid;
+    grid-template-columns: minmax(300px, 1.15fr) minmax(200px, 0.92fr) minmax(
+            200px,
+            0.92fr
+        );
+    gap: 20px;
+    align-items: stretch;
+    min-width: 0;
+}
+
+@media (max-width: 1080px) {
+    .addPrefsThreeCol {
+        grid-template-columns: 1fr;
+    }
+}
+
+.addPrefsColSettings {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+}
+
+.addPrefsColSlot {
+    min-height: 423px;
+    max-height: 723px;
+    border-radius: 25px;
+    background-color: #333333;    
+    padding: 14px;
+    display: flex;
+    min-width: 0;
+}
+
+.prefSlotAddBtn {
+    box-sizing: border-box;
+    min-width: 148px;
+    height: 48px;
+    padding: 0;
+    margin: 0;
+    border: none;
+    border-radius: 16px;
+    color: #e6e6e6;
+    font-size: 26px;
+    font-weight: 300;
+    line-height: 1;
+    letter-spacing: 0;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+     box-shadow:
+        4px 5px 12px rgba(0, 0, 0, 0.42),
+        -2px -2px 8px rgba(130, 130, 130, 0.14);
+}
+
+.prefSlotAddBtn:hover {
+    color: #ffffff;
+   
+}
+
+
+.prefSlotAddBtn:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.45);
+    outline-offset: 3px;
+}
+
+.blockPrefMusic{
+    display: flex;
+    flex-direction: column;
+}
+
+.prefSlotInner {
+    flex: 1;
+    min-height: 0;
+    border: 2px dashed rgba(255, 255, 255, 0.22);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-align: center;
+    padding: 20px 12px;
+}
+
+.prefSlotPlus {
+    font-size: 42px;
+    font-weight: 300;
+    color: #ffffff;
+    line-height: 1;
+}
+
+.prefSlotTitle {
+    margin: 0;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.prefSlotHint {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 13px;
+    line-height: 1.4;
+    max-width: 220px;
+}
+
+.prefSection {
+    background-color: #ebeae5;
+    border-radius: 16px;
+    padding: 16px 16px 18px;
+    box-sizing: border-box;
+}
+
+.prefSectionTitle {
+    margin: 0 0 6px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #2a6128;
+    line-height: 1.25;
+}
+
+.prefSectionLead {
+    margin: 0 0 14px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #444444;
+}
+
+.prefHint {
+    margin: 0 0 10px;
+    font-size: 12px;
+    line-height: 1.4;
+    color: #555555;
+}
+
+.prefFieldset {
+    margin: 0 0 14px;
+    padding: 0;
+    border: none;
+}
+
+.prefFieldset:last-child {
+    margin-bottom: 0;
+}
+
+.prefScheduleBlock {
+    box-sizing: border-box;
+    margin-bottom: 16px;
+    padding: 14px 14px 16px;
+    border-radius: 14px;
+    background: #f5f4f0;
+    border: 1px solid rgba(192, 189, 181, 0.85);
+}
+
+.prefScheduleBlockHead {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+    min-width: 0;
+}
+
+.prefScheduleBlockTitles {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.prefScheduleBlockName {
+    font-size: 15px;
+    font-weight: 700;
+    color: #2a6128;
+    line-height: 1.25;
+}
+
+.prefScheduleBlockSummary {
+    font-size: 12px;
+    font-weight: 600;
+    color: #555555;
+    line-height: 1.35;
+    word-break: break-word;
+}
+
+.prefScheduleBlockRemoveBtn {
+    flex-shrink: 0;
+    padding: 6px 12px;
+    border-radius: 10px;
+    border: 1px solid #a35454;
+    background: rgba(163, 84, 84, 0.12);
+    color: #5c2a2a;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.prefScheduleBlockRemoveBtn:hover {
+    background: rgba(163, 84, 84, 0.2);
+}
+
+.prefAddBlockRow {
+    margin: 18px 0 4px;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.prefAddScheduleBlockBtn {
+    padding: 10px 16px;
+    border-radius: 12px;
+    border: 2px solid rgba(42, 97, 40, 0.35);
+    background: #faf9f7;
+    color: #1e3d1c;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.prefAddScheduleBlockBtn:hover {
+    border-color: #2a6128;
+    background: #e8f0e7;
+}
+
+.prefCustomIntervalsIntro {
+    margin: 0 0 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.prefAddCustomIntervalsBtn {
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 2px solid rgba(42, 97, 40, 0.35);
+    background: #faf9f7;
+    color: #1e3d1c;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.prefAddCustomIntervalsBtn:hover {
+    border-color: #2a6128;
+    background: #e8f0e7;
+}
+
+.prefAddCustomIntervalsBtn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.prefAddCustomIntervalsBtn:disabled:hover {
+    border-color: rgba(42, 97, 40, 0.35);
+    background: #faf9f7;
+}
+
+.prefRemoveCustomIntervalsBtn {
+    margin-top: 12px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: 1px solid #c0bdb5;
+    background: #ffffff;
+    color: #5c2a2a;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.prefRemoveCustomIntervalsBtn:hover {
+    border-color: #a35454;
+    background: rgba(163, 84, 84, 0.08);
+}
+
+.prefTimeIrrelevantRow {
+    margin: 14px 0 4px;
+}
+
+.prefTimeIrrelevantToggle {
+    justify-content: flex-start;
+    gap: 8px;
+    width: fit-content;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.prefTimeIrrelevantToggle .prefGenreName {
+    flex: 0 0 auto;
+}
+
+.prefGenreRow.prefTimeIrrelevantToggle:hover {
+    background: transparent;
+}
+
+.prefLegend {
+    padding: 0;
+    margin: 0 0 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e1736;
+}
+
+.prefSegment {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.prefSegmentBtn {
+    padding: 8px 16px;
+    border-radius: 12px;
+    border: 2px solid rgba(42, 97, 40, 0.25);
+    background: #f5f4f0;
+    color: #333333;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.prefSegmentBtnOn {
+    border-color: #2a6128;
+    background: #d8e6d7;
+    color: #1e3d1c;
+}
+
+.prefToggleGrid {
+    gap: 10px;
+}
+
+/* Пресеты времени: по два в ряд */
+.prefToggleGridTime {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* Громкость: одна колонка, фиксированная ширина карточек */
+.prefToggleGridVolume {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex-wrap: nowrap;
+}
+
+.prefToggleGridVolume .prefToggleTile {
+    width: 280px;
+    max-width: 100%;
+}
+
+.prefToggleTile {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 12px 14px;
+    width: 100%;
+    min-width: 0;
+    border-radius: 14px;
+    border: 2px solid #c0bdb5;
+    background: #faf9f7;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    box-sizing: border-box;
+    transition:
+        border-color 0.15s ease,
+        background 0.15s ease;
+}
+
+.prefToggleTile:hover {
+    border-color: #9aaf99;
+}
+
+.prefToggleTile:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.prefToggleTile:disabled:hover {
+    border-color: #c0bdb5;
+    background: #faf9f7;
+}
+
+.prefToggleTileOn {
+    border-color: #468743;
+    background: #d8e8d6;
+}
+
+.prefToggleTitle {
+    font-size: 15px;
+    font-weight: 600;
+    color: #000000;
+}
+
+.prefToggleSub {
+    font-size: 12px;
+    line-height: 1.35;
+    color: #555555;
+}
+
+.prefTimeRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.prefTimeLabel {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #333333;
+    cursor: pointer;
+}
+
+.prefTimeInput {
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1px solid #c0bdb5;
+    font-size: 15px;
+    font-family: inherit;
+    background: #ffffff;
+    color: #1e3d1c;
+    cursor: pointer;
+    accent-color: #468743;
+    color-scheme: only light;
+}
+
+.prefTimeInput:focus {
+    outline: 2px solid rgba(70, 135, 67, 0.55);
+    outline-offset: 1px;
+    border-color: #468743;
+}
+
+.prefTimeInput::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.9;
+}
+
+/* Текст времени в поле — зелёный вместо системного синего (Chromium) */
+.prefTimeInput::-webkit-datetime-edit,
+.prefTimeInput::-webkit-datetime-edit-fields-wrapper,
+.prefTimeInput::-webkit-datetime-edit-text,
+.prefTimeInput::-webkit-datetime-edit-hour-field,
+.prefTimeInput::-webkit-datetime-edit-minute-field {
+    color: #1e3d1c;
+}
+
+.prefTimeInput::-webkit-datetime-edit-hour-field:focus,
+.prefTimeInput::-webkit-datetime-edit-minute-field:focus {
+    background-color: #cde3cc;
+    color: #0f2410;
+    outline: none;
+}
+
+.prefDuplicateBanner {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    padding: 12px 14px;
+    margin: 0 0 12px;
+    background-color: #dcaaaa;
+    color: #333333;
+    border-radius: 18px;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.4;
+}
+
+/* Кастомный выбор времени (нативный <input type="time"> не даёт стилизовать выпадающий список) */
+.prefTimePickerWrap {
+    position: relative;
+    display: inline-block;
+    min-width: 0;
+}
+
+.prefTimePickerTrigger {
+    box-sizing: border-box;
+    width: 90px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid #c0bdb5;
+    font-size: 15px;
+    font-family: inherit;
+    font-weight: 600;
+    background: #ffffff;
+    color: #1e3d1c;
+    cursor: pointer;
+    text-align: center;
+    line-height: 1.25;
+}
+
+.prefTimePickerTrigger:hover {
+    border-color: #468743;
+}
+
+.prefTimePickerTrigger:focus-visible {
+    outline: 2px solid rgba(70, 135, 67, 0.55);
+    outline-offset: 1px;
+}
+
+input.prefTimePickerTrigger:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+input.prefTimePickerTrigger {
+    appearance: none;
+    -webkit-appearance: none;
+    margin: 0;
+    cursor: text;
+}
+
+input.prefTimePickerTrigger:focus {
+    outline: none;
+}
+
+.prefTimePickerPopover {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 6px);
+    z-index: 80;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    padding: 8px;
+    background: #ffffff;
+    border: 1px solid #c0bdb5;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(30, 23, 54, 0.18);
+}
+
+.prefTimePickerCol {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: 220px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-width: 3rem;
+    scrollbar-width: thin;
+    scrollbar-color: #888 transparent;
+}
+
+.prefTimePickerCol::-webkit-scrollbar {
+    width: 6px;
+}
+
+.prefTimePickerCol::-webkit-scrollbar-thumb {
+    background: #888888;
+    border-radius: 4px;
+}
+
+.prefTimePickerCell {
+    margin: 0;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    color: #1e1736;
+    cursor: pointer;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.prefTimePickerCell:hover {
+    background: #cde3cc;
+    color: #0f2410;
+}
+
+.prefTimePickerCellSel {
+    background: #468743 !important;
+    color: #ffffff !important;
+}
+
+.prefTimePickerCellSel:hover {
+    background: #3a7238 !important;
+    color: #ffffff !important;
+}
+
+.prefIntervalRows {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.prefIntervalRow {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 10px;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid rgba(192, 189, 181, 0.9);
+}
+
+.prefIntervalRow:last-child {
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-bottom: none;
+}
+
+.prefIntervalRow.prefIntervalRowError {
+    padding: 12px;
+    margin-bottom: 12px;
+    border: 3px solid #a35454;
+    border-radius: 14px;
+    background: rgba(163, 84, 84, 0.07);
+    border-bottom: none;
+}
+
+.prefIntervalRow.prefIntervalRowError:last-child {
+    margin-bottom: 8px;
+}
+
+.prefIntervalFields {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.prefIntervalFields .prefTimeRow {
+    margin-bottom: 0;
+}
+
+.prefIntervalRowBtns {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    padding-bottom: 2px;
+}
+
+.prefIntervalFooterActions {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.prefIntervalFooterActions .prefRemoveCustomIntervalsBtn {
+    margin-top: 0;
+}
+
+.prefIntervalAddBtn {
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: 2px solid #2a6128;
+    background: #e8f0e7;
+    color: #1e3d1c;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.prefIntervalAddBtn:hover:not(:disabled) {
+    background: #d8e6d7;
+    border-color: #1e4a1c;
+    color: #0f2410;
+}
+
+.prefIntervalAddBtn:disabled {
+    opacity: 0.42;
+    cursor: not-allowed;
+}
+
+.prefIntervalRowBtn {
+    width: 29px;
+    height: 29px;
+    padding: 0;
+    border: 2px solid #1e1736;
+    border-radius: 26px;
+    background-color: #faf9f7;
+    color: #1e1736;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-sizing: border-box;
+}
+
+.prefIntervalRowBtn:hover:not(:disabled) {
+    background-color: #ebeae5;
+    border-color: #2a6128;
+    color: #2a6128;
+}
+
+.prefIntervalRowBtn:disabled {
+    opacity: 0.42;
+    cursor: not-allowed;
+}
+
+.prefDayChips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.prefDayChip {
+    min-width: 40px;
+    padding: 8px 10px;
+    border-radius: 12px;
+    border: 2px solid #c0bdb5;
+    background: #f5f4f0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #333333;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.prefDayChipOn {
+    border-color: #468743;
+    background: #cde3cc;
+    color: #1e3d1c;
+}
+
+.prefCalHead {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.prefCalNav {
+    border: none;
+    background: transparent;
+    color: #2a6128;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-family: inherit;
+}
+
+.prefCalNav:hover {
+    background: rgba(42, 97, 40, 0.1);
+}
+
+.prefCalNav:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.prefCalNav:disabled:hover {
+    background: transparent;
+}
+
+.prefCalTitle {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e1736;
+}
+
+.prefCalWeekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 4px;
+}
+
+.prefCalWd {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: #666666;
+}
+
+.prefCalGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.prefCalCell {
+    aspect-ratio: 1;
+    min-height: 0;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    background: #f5f4f0;
+    font-size: 12px;
+    font-weight: 600;
+    color: #333333;
+    cursor: pointer;
+    font-family: inherit;
+    padding: 0;
+}
+.prefCalCell:hover {
+    background: #deddd9;
+}
+
+.prefCalCellMuted {
+    opacity: 0.35;
+    cursor: default;
+}
+
+.prefCalCellOn {
+    border-color: #468743;
+    background: #cde3cc;
+    color: #1e3d1c;
+}
+
+.prefCalCell:disabled {
+    opacity: 0.38;
+    cursor: not-allowed;
+}
+
+.prefCalCell:disabled:hover {
+    background: #f5f4f0;
+}
+
+.prefGenreLayout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    min-width: 0;
+}
+
+@media (max-width: 640px) {
+    .prefGenreLayout {
+        grid-template-columns: 1fr;
+    }
+}
+
+.prefGenrePick {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.prefSearchVenueStyle {
+    width: 100% !important;
+    max-width: 100%;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.prefGenreList {
+    max-height: 200px;
+    overflow-y: auto;
+    border-radius: 12px;
+    border: 1px solid #d5d2ca;
+    background: #faf9f7;
+    padding: 6px 0;
+    scrollbar-width: thin;
+    scrollbar-color: #666 transparent;
+}
+
+.prefGenreList::-webkit-scrollbar {
+    width: 6px;
+}
+
+.prefGenreList::-webkit-scrollbar-thumb {
+    background-color: #888888;
+    border-radius: 4px;
+}
+
+.prefGenreListEmpty {
+    margin: 0;
+    padding: 16px 14px;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #555555;
+    text-align: center;
+}
+
+.prefGenreRow {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    margin: 0;
+}
+
+.prefGenreRow:hover {
+    background: rgba(42, 97, 40, 0.06);
+}
+
+.prefGenreRow:focus-visible {
+    outline: 2px solid #2a6128;
+    outline-offset: -2px;
+    border-radius: 6px;
+}
+
+.prefGenreToggleOff {
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
+.prefGenreName {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-weight: 500;
+    color: #000000;
+}
+
+.prefGenreChosen {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px dashed rgba(42, 97, 40, 0.35);
+    background: #f5f4f0;
+    height: 248px;
+    max-height: 248px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.prefGenreChosenTitle {
+    font-size: 12px;
+    font-weight: 700;
+    color: #2a6128;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.prefChipWrap {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-content: flex-start;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 2px;
+}
+
+.prefChipWrap::-webkit-scrollbar {
+    width: 6px;
+}
+
+.prefChipWrap::-webkit-scrollbar-thumb {
+    background-color: #666666;
+    border-radius: 4px;
+}
+
+.prefChip {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px 6px 10px;
+    border-radius: 999px;
+    background: #ebeae5;
+    border: 1px solid #c0bdb5;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e1736;
+}
+
+.prefChipX {
+    border: none;
+    background: transparent;
+    color: #666666;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 2px;
+    border-radius: 4px;
+    font-family: inherit;
+}
+
+.prefChipX:hover {
+    color: #1e1736;
+    background: rgba(0, 0, 0, 0.06);
+}
+
+.addPrefsSaveRow {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
+.addPrefsSaveBtn {
+    min-width: 168px;
+    padding: 13px 28px;
+    border-radius: 15px;
+    border: none;
+    background-color: #1e1736;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.15);
+}
+
+.addPrefsSaveBtn:hover {
+    filter: brightness(1.05);
+}
+
+.addPrefsSaveBtn:active {
+    transform: translateY(1px);
+}
+
+
+.addPrefsColSlot button{
+    width: 308px;
+    height: 92px;
+    border-radius: 14px;
+    background-color: transparent;
+    box-shadow: 0px -4px 9px 0px #FFFFFF25;
+    box-shadow: 0px 4px 13px 0px #000000;
+    border: 1px solid #00000001;
+    color: #BFBFBF;
+    font-size: 80px;
+    font-weight: 100;
+}

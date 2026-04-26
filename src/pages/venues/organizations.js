@@ -20,7 +20,6 @@ import AudioPlayer from "../../Component/AudioPlayer/AudioPlayer";
 import main from "../../pages/mainListenerPage/mainListenerPage.module.css";
 import { API_GATEWAY, getVenueCoverImageUrl } from "../../utils/venueMediaUrls";
 
-/** Совпадает с размерами карточки `.org` в mainListenerPage.module.css */
 const ORG_CARD_W = 125;
 const ORG_CARD_H = 125;
 const ORG_GAP_X = 20;
@@ -157,41 +156,56 @@ const Organizations = () => {
           <div ref={orgAreaRef} className={style.organizationsArea}>
             <div className={style.organizations}>
               {pageVenues.map((v) => (
-                <div key={v.id} className={style.orgCardWrap}>
-                  <div className={`${main.musician} ${main.org}`}>
-                    <img
-                      key={`cover-${v.id}`}
-                      src={getVenueCoverImageUrl(v.id) || ""}
-                      alt={v.name != null ? String(v.name) : ""}
-                      onError={(e) => {
-                        e.currentTarget.style.opacity = "0.35";
-                      }}
-                    />
-                    <h2>
-                      {v.name != null && String(v.name).trim() ? v.name : "—"}
-                    </h2>
+                <NavLink
+                  key={v.id}
+                  to={`/orgPage/${v.id}`}
+                  className={style.orgCardLink}
+                  aria-label={
+                    v.name != null && String(v.name).trim()
+                      ? String(v.name)
+                      : `Заведение ${v.id}`
+                  }
+                >
+                  <div className={style.orgCardWrap}>
+                    <div className={`${main.musician} ${main.org}`}>
+                      <img
+                        key={`cover-${v.id}`}
+                        src={getVenueCoverImageUrl(v.id) || ""}
+                        alt=""
+                        onError={(e) => {
+                          e.currentTarget.style.opacity = "0.35";
+                        }}
+                      />
+                      <h2>
+                        {v.name != null && String(v.name).trim()
+                          ? v.name
+                          : "—"}
+                      </h2>
+                    </div>
                   </div>
-                </div>
+                </NavLink>
               ))}
             </div>
           </div>
           {!loading && venues.length > 0 ? (
-            <div
-              className={`${venueAdmin.pagination} ${style.orgsPagination}`}
-            >
+            <div className={style.orgsPagination}>
               <button
                 type="button"
-                className={venueAdmin.pageNav}
+                className={`${venueAdmin.pageNav} ${style.orgsPageNav}`}
                 disabled={loading || safePage <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 aria-label="Предыдущая страница"
               >
                 ◀
               </button>
-              <span className={venueAdmin.pageCurrent}>{safePage}</span>
+              <span
+                className={`${venueAdmin.pageCurrent} ${style.orgsPageCurrent}`}
+              >
+                {safePage}
+              </span>
               <button
                 type="button"
-                className={venueAdmin.pageNav}
+                className={`${venueAdmin.pageNav} ${style.orgsPageNav}`}
                 disabled={loading || safePage >= pageCount}
                 onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
                 aria-label="Следующая страница"
