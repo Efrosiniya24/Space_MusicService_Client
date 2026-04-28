@@ -1,0 +1,28 @@
+.banner {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  box-sizing: border-box;
+  max-width: calc(100vw - 32px);
+  width: max-content;
+  padding: 13px;
+  border-radius: 18px;
+  font-size: 21px;
+  text-align: center;
+  white-space: nowrap;
+  overflow-x: auto;
+  z-index: 9999;
+}
+
+.error {
+  background-color: #dcaaaa;
+  color: #333333;
+}
+
+.success {
+  background-color: #b8d2b9;
+  color: #1e3d1c;
+  font-weight: bold;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}

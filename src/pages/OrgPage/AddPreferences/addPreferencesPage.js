@@ -12,11 +12,12 @@ import orgPageStyle from "../orgPage.module.css";
 import orgStyle from "../../venues/organizations.module.css";
 import apStyle from "./addPreferencesPage.module.css";
 import venueAdminStyle from "../../admin/venues/VenueAdmin.module.css";
-import { GENRE_OPTIONS, WEEKDAY_CHIPS } from "./preferencesConstants";
+import { WEEKDAY_CHIPS } from "./preferencesConstants";
 
 import searchBlack from "../../../icons/search_black.png";
 
 import Header from "../../../Component/HeaderListener/headerListener";
+import StatusBanner from "../../../Component/StatusBanner/StatusBanner";
 
 import Music from "../../../icons/music.png";
 import Genres from "../../../icons/genres.png";
@@ -304,7 +305,13 @@ const AddPreferencesPage = () => {
 
   const [volumeLevels, setVolumeLevels] = useState(() => new Set());
   const [genreQuery, setGenreQuery] = useState("");
-  const [pickedGenres, setPickedGenres] = useState(() => new Set());
+  const [genres, setGenres] = useState([]);
+  const [genreLoading, setGenreLoading] = useState(false);
+  const [genreError, setGenreError] = useState("");
+  const [pickedGenreIds, setPickedGenreIds] = useState(() => new Set());
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [saveError, setSaveError] = useState("");
+  const [saveOk, setSaveOk] = useState("");
 
   const idNum = useMemo(() => {
     if (venueId == null || venueId === "") return NaN;
@@ -693,37 +700,80 @@ const AddPreferencesPage = () => {
 
   const filteredGenres = useMemo(() => {
     const q = genreQuery.trim().toLowerCase();
-    if (!q) return GENRE_OPTIONS;
-    return GENRE_OPTIONS.filter((g) => g.toLowerCase().includes(q));
-  }, [genreQuery]);
+    if (!q) return genres;
+    return genres.filter((g) => String(g.name).toLowerCase().includes(q));
+  }, [genreQuery, genres]);
 
-  const toggleGenre = useCallback((g) => {
-    setPickedGenres((prev) => {
+  const toggleGenre = useCallback((genreId) => {
+    setPickedGenreIds((prev) => {
       const next = new Set(prev);
-      if (next.has(g)) next.delete(g);
-      else next.add(g);
+      if (next.has(genreId)) next.delete(genreId);
+      else next.add(genreId);
       return next;
     });
   }, []);
 
-  const removeGenre = useCallback((g) => {
-    setPickedGenres((prev) => {
+  const removeGenre = useCallback((genreId) => {
+    setPickedGenreIds((prev) => {
       const next = new Set(prev);
-      next.delete(g);
+      next.delete(genreId);
       return next;
     });
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    const headers = {};
+    if (token) headers.Authorization = `Bearer ${token}`;
+
+    setGenreLoading(true);
+    setGenreError("");
+    fetch(`${API_GATEWAY}/space/media/genre/all`, { headers })
+      .then((res) => {
+        if (!res.ok) throw new Error("genre_fetch_failed");
+        return res.json();
+      })
+      .then((data) => {
+        const mapped = Array.isArray(data)
+          ? data
+              .filter((g) => g && g.id != null && g.name != null)
+              .map((g) => ({ id: Number(g.id), name: String(g.name) }))
+          : [];
+        mapped.sort((a, b) => a.name.localeCompare(b.name, "ru"));
+        setGenres(mapped);
+      })
+      .catch(() => {
+        setGenreError("Не удалось загрузить жанры");
+      })
+      .finally(() => {
+        setGenreLoading(false);
+      });
   }, []);
 
   const handleSave = () => {
-    /* Заготовка под API */
-    void {
+    if (saveLoading) return;
+    setSaveError("");
+    setSaveOk("");
+
+    const token = localStorage.getItem("accessToken");
+    const userIdRaw = localStorage.getItem("userId");
+    const userIdNum = Number(userIdRaw);
+    if (!Number.isFinite(userIdNum) || userIdNum <= 0) {
+      setSaveError("Не найден userId. Перезайдите в аккаунт");
+      return;
+    }
+    const headers = { "Content-Type": "application/json" };
+    if (token) headers.Authorization = `Bearer ${token}`;
+
+    const payload = {
+      userId: userIdNum,
+      venueId: Number.isFinite(idNum) ? idNum : null,
       addressIds: Array.from(localSelectedIds),
       scheduleBlocks: scheduleBlocks.map((b) => ({
         weekDays: Array.from(b.weekDays).sort(
           (a, d) => WEEKDAY_ORDER.indexOf(a) - WEEKDAY_ORDER.indexOf(d),
         ),
         timePresets: Array.from(b.timePresetsSelected),
-        useCustomIntervals: Boolean(b.customIntervalsEditorOpen),
         customIntervals: b.customIntervalsEditorOpen
           ? b.customIntervals.map(({ from, to }) => ({ from, to }))
           : [],
@@ -731,8 +781,28 @@ const AddPreferencesPage = () => {
         specificDates: Array.from(b.pickedDates ?? []).sort(),
       })),
       volumeLevels: Array.from(volumeLevels),
-      genres: Array.from(pickedGenres),
+      genreIds: Array.from(pickedGenreIds),
     };
+
+    setSaveLoading(true);
+    fetch(`${API_GATEWAY}/space/personalization/preferences`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(payload),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("save_failed");
+        return res.json();
+      })
+      .then(() => {
+        setSaveOk("Предпочтения сохранены");
+      })
+      .catch(() => {
+        setSaveError("Не удалось сохранить предпочтения");
+      })
+      .finally(() => {
+        setSaveLoading(false);
+      });
   };
 
   return (
@@ -1414,8 +1484,20 @@ const AddPreferencesPage = () => {
                                 className={apStyle.prefGenreList}
                                 aria-label="Список жанров"
                               >
+                                {genreLoading ? (
+                                  <p className={apStyle.prefGenreListEmpty}>
+                                    Загрузка жанров...
+                                  </p>
+                                ) : null}
+                                {genreError ? (
+                                  <p className={apStyle.prefGenreListEmpty}>
+                                    {genreError}
+                                  </p>
+                                ) : null}
                                 {filteredGenres.length === 0 &&
-                                genreQuery.trim() !== "" ? (
+                                genreQuery.trim() !== "" &&
+                                !genreLoading &&
+                                !genreError ? (
                                   <p
                                     className={apStyle.prefGenreListEmpty}
                                     role="status"
@@ -1424,27 +1506,27 @@ const AddPreferencesPage = () => {
                                   </p>
                                 ) : (
                                   filteredGenres.map((g) => {
-                                    const on = pickedGenres.has(g);
+                                    const on = pickedGenreIds.has(g.id);
                                     return (
                                       <div
-                                        key={g}
+                                        key={g.id}
                                         role="checkbox"
                                         aria-checked={on}
                                         tabIndex={0}
                                         className={apStyle.prefGenreRow}
-                                        onClick={() => toggleGenre(g)}
+                                        onClick={() => toggleGenre(g.id)}
                                         onKeyDown={(e) => {
                                           if (
                                             e.key === "Enter" ||
                                             e.key === " "
                                           ) {
                                             e.preventDefault();
-                                            toggleGenre(g);
+                                            toggleGenre(g.id);
                                           }
                                         }}
                                       >
                                         <span className={apStyle.prefGenreName}>
-                                          {g}
+                                          {g.name}
                                         </span>
                                         <span
                                           className={`${orgPageStyle.venueAddressCheck} ${on ? orgPageStyle.venueAddressCheckOn : apStyle.prefGenreToggleOff}`}
@@ -1458,17 +1540,22 @@ const AddPreferencesPage = () => {
                             </div>
                             <div className={apStyle.prefGenreChosen}>
                               <div className={apStyle.prefGenreChosenTitle}>
-                                Выбрано ({pickedGenres.size})
+                                Выбрано ({pickedGenreIds.size})
                               </div>
                               <div className={apStyle.prefChipWrap}>
-                                {Array.from(pickedGenres).map((g) => (
-                                  <span key={g} className={apStyle.prefChip}>
-                                    <span>{g}</span>
+                                {Array.from(pickedGenreIds)
+                                  .map((id) =>
+                                    genres.find((genre) => genre.id === id),
+                                  )
+                                  .filter(Boolean)
+                                  .map((g) => (
+                                  <span key={g.id} className={apStyle.prefChip}>
+                                    <span>{g.name}</span>
                                     <button
                                       type="button"
                                       className={apStyle.prefChipX}
-                                      aria-label={`Убрать ${g}`}
-                                      onClick={() => removeGenre(g)}
+                                      aria-label={`Убрать ${g.name}`}
+                                      onClick={() => removeGenre(g.id)}
                                     >
                                       ×
                                     </button>
@@ -1514,12 +1601,21 @@ const AddPreferencesPage = () => {
                     </div>
 
                     <div className={apStyle.addPrefsSaveRow}>
+                      <StatusBanner
+                        type={saveError ? "error" : "success"}
+                        message={saveError || saveOk}
+                        onClose={() => {
+                          setSaveError("");
+                          setSaveOk("");
+                        }}
+                      />
                       <button
                         type="button"
                         className={apStyle.addPrefsSaveBtn}
                         onClick={handleSave}
+                        disabled={saveLoading}
                       >
-                        Сохранить
+                        {saveLoading ? "Сохранение..." : "Сохранить"}
                       </button>
                     </div>
                   </div>
