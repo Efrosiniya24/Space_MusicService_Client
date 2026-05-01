@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { NavLink, useNavigate, useParams } from "react-router-dom";
+import { NavLink, useLocation, useNavigate, useParams } from "react-router-dom";
 
 import index from "../../index.module.css";
 import style from "./orgPage.module.css";
@@ -63,6 +63,7 @@ const ADDRESSES_CITIES_PER_PAGE =
 const OrgPage = () => {
   const { venueId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const preferenceNavigateTimerRef = useRef(null);
   const [venue, setVenue] = useState(null);
   const [loading, setLoading] = useState(Boolean(venueId));
@@ -192,6 +193,12 @@ const OrgPage = () => {
     setPreferenceError("");
     setPreferenceSuccess("");
   }, [venue?.id]);
+
+  useEffect(() => {
+    const message = location.state?.preferenceSuccess;
+    if (!message) return;
+    setPreferenceSuccess(String(message));
+  }, [location.state]);
 
   useEffect(() => {
     if (!preferenceError && !preferenceSuccess) return undefined;
@@ -357,14 +364,23 @@ const OrgPage = () => {
               <section className={style.venueAddressesSection} aria-label="Адреса">
                 <div className={style.venueAddressesToolbar}>
                   <div className={style.venueAddressesTitle}>Наши адреса</div>
-                  <button
-                    type="button"
-                    className={style.venuePreferencesBtn}
-                    disabled={addressesByCity.length === 0}
-                    onClick={handleAddPreferences}
-                  >
-                    Добавить предпочтения
-                  </button>
+                  <div className={style.venueActions}>
+                    <button
+                      type="button"
+                      className={`${style.venuePreferencesBtn} ${style.venuePreferencesBtnPrimary}`}
+                      onClick={() => navigate(`/orgPage/${idNum}/preferences`)}
+                    >
+                      Мои предпочтения
+                    </button>
+                    <button
+                      type="button"
+                      className={style.venuePreferencesBtn}
+                      disabled={addressesByCity.length === 0}
+                      onClick={handleAddPreferences}
+                    >
+                      Добавить предпочтения
+                    </button>
+                  </div>
                 </div>
 
                 {addressesByCity.length === 0 ? (

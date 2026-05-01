@@ -272,7 +272,7 @@ cursor: pointer;
     border: none;
     border-radius: 20px;
     cursor: pointer;
-    background-color: #1e1736;
+    background-color: #468743;
     color: #ffffff;
     font-size: 14px;
     font-weight: 700;
@@ -281,6 +281,16 @@ cursor: pointer;
     box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.145);
     font-family: inherit;
     white-space: nowrap;
+}
+
+.venueActions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.venuePreferencesBtnPrimary {
+    background-color: #1e1736;
 }
 
 .venuePreferencesBtn:hover:not(:disabled) {

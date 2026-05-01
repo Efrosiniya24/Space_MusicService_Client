@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { NavLink, useLocation, useParams } from "react-router-dom";
+import { NavLink, useLocation, useNavigate, useParams } from "react-router-dom";
 
 import index from "../../../index.module.css";
 import orgPageStyle from "../orgPage.module.css";
@@ -282,6 +282,7 @@ function initialCalMonth() {
 const AddPreferencesPage = () => {
   const { venueId } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const [venue, setVenue] = useState(null);
   const [loading, setLoading] = useState(Boolean(venueId));
   const [error, setError] = useState("");
@@ -312,6 +313,7 @@ const AddPreferencesPage = () => {
   const [saveLoading, setSaveLoading] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [saveOk, setSaveOk] = useState("");
+  const saveRedirectTimerRef = useRef(null);
 
   const idNum = useMemo(() => {
     if (venueId == null || venueId === "") return NaN;
@@ -373,6 +375,15 @@ const AddPreferencesPage = () => {
       cancelled = true;
     };
   }, [idNum]);
+
+  useEffect(() => {
+    return () => {
+      if (saveRedirectTimerRef.current != null) {
+        clearTimeout(saveRedirectTimerRef.current);
+        saveRedirectTimerRef.current = null;
+      }
+    };
+  }, []);
 
   const coverSrc = useMemo(() => {
     if (!venue) return "";
@@ -796,6 +807,15 @@ const AddPreferencesPage = () => {
       })
       .then(() => {
         setSaveOk("Предпочтения сохранены");
+        if (saveRedirectTimerRef.current != null) {
+          clearTimeout(saveRedirectTimerRef.current);
+        }
+        saveRedirectTimerRef.current = setTimeout(() => {
+          saveRedirectTimerRef.current = null;
+          navigate(`/orgPage/${idNum}`, {
+            state: { preferenceSuccess: "Предпочтения сохранены" },
+          });
+        }, 1200);
       })
       .catch(() => {
         setSaveError("Не удалось сохранить предпочтения");
