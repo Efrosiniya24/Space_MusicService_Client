@@ -7,7 +7,7 @@ import React, {
   useLayoutEffect,
 } from "react";
 import { createPortal } from "react-dom";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import style from "./VenueAdmin.module.css";
 import {
   AddressStatusChangePopover,
@@ -26,6 +26,7 @@ import search from "../../../icons/search_black.png";
 
 const API_GATEWAY = "http://localhost:8080";
 const URL_VENUE_ALL = `${API_GATEWAY}/space/venue/all`;
+const URL_VENUE_SEARCH = `${API_GATEWAY}/space/venue/search`;
 const URL_PENDING_COUNT = `${API_GATEWAY}/space/system/venue/count/pending`;
 
 const DEFAULT_ROW_HEIGHT = 53;
@@ -252,6 +253,9 @@ function PendingAddressesDialog({
 }
 
 const VenuesAdmin = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const qFromUrl = searchParams.get("q") ?? "";
+
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [venues, setVenues] = useState([]);
@@ -263,7 +267,7 @@ const VenuesAdmin = () => {
   const [statusPopoverBox, setStatusPopoverBox] = useState(null);
   const statusPopoverRef = useRef(null);
   const pendingStatusMenuAnchorRef = useRef(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(qFromUrl);
   const [sortKey, setSortKey] = useState("id");
   const [sortDir, setSortDir] = useState("asc");
   const [page, setPage] = useState(1);
@@ -310,11 +314,15 @@ const VenuesAdmin = () => {
     }
   }, []);
 
-  const loadVenues = useCallback(async () => {
+  const loadVenues = useCallback(async (query = "") => {
     setVenuesLoading(true);
     const token = localStorage.getItem("accessToken");
+    const q = String(query || "").trim();
+    const url = q
+      ? `${URL_VENUE_SEARCH}?query=${encodeURIComponent(q)}`
+      : URL_VENUE_ALL;
     try {
-      const res = await fetch(URL_VENUE_ALL, {
+      const res = await fetch(url, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       if (!res.ok) throw new Error("fetch_failed");
@@ -334,9 +342,28 @@ const VenuesAdmin = () => {
   }, []);
 
   useEffect(() => {
-    loadVenues();
     fetchPendingCount();
-  }, [loadVenues, fetchPendingCount]);
+  }, [fetchPendingCount]);
+
+  useEffect(() => {
+    setSearchQuery(qFromUrl);
+  }, [qFromUrl]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const q = searchQuery.trim();
+      if (q) setSearchParams({ q }, { replace: true });
+      else setSearchParams({}, { replace: true });
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery, setSearchParams]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      loadVenues(searchQuery);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery, loadVenues]);
 
   const openPendingAddressStatusMenu = useCallback(
     (row, anchorElement, venueIdOverride) => {
@@ -450,10 +477,7 @@ const VenuesAdmin = () => {
   );
 
   const filteredSorted = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    let rows = q
-      ? venues.filter((v) => v.name.toLowerCase().includes(q))
-      : [...venues];
+    let rows = [...venues];
 
     rows.sort((a, b) => {
       let cmp = 0;

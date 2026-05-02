@@ -14,6 +14,7 @@ import PersonalProfileAuth from "./pages/auth/venue/creatingVenue/createVenue/pe
 import AdminAuth from "./pages/auth/admin/adminAuth";
 import VenuesAdmin from "./pages/admin/venues/VenuesAdmin";
 import SingleVenueAdmin from "./pages/admin/singleVenue/SingleVenueAdmin";
+import AdminArtists from "./pages/admin/artists/AdminArtists";
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
         ></Route>
         <Route path="/admin/auth" element={<AdminAuth />}></Route>
         <Route path="/admin/venues" element={<VenuesAdmin />}></Route>
+        <Route path="/admin/artists" element={<AdminArtists />}></Route>
         <Route
           path="/admin/venue/:venueId"
           element={<SingleVenueAdmin />}

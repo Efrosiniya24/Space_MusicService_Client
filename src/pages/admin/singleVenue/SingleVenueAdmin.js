@@ -6,7 +6,7 @@ import React, {
   useRef,
   useLayoutEffect,
 } from "react";
-import { NavLink, useParams } from "react-router-dom";
+import { NavLink, useNavigate, useParams } from "react-router-dom";
 
 import adminStyle from "../venues/VenueAdmin.module.css";
 import style from "./SingleVenueAdmin.module.css";
@@ -137,6 +137,7 @@ function SortArrows({ active, direction }) {
 
 const SingleVenueAdmin = () => {
   const { venueId } = useParams();
+  const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -349,6 +350,15 @@ const SingleVenueAdmin = () => {
   useEffect(() => {
     loadVenue();
   }, [loadVenue]);
+
+  useEffect(() => {
+    const q = String(searchQuery || "").trim();
+    if (!q) return undefined;
+    const t = setTimeout(() => {
+      navigate(`/admin/venues?q=${encodeURIComponent(q)}`);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [searchQuery, navigate]);
 
   useEffect(() => {
     setCuratorPage(1);
@@ -720,6 +730,7 @@ const SingleVenueAdmin = () => {
                     onChange={(e) => {
                       setSearchQuery(e.target.value);
                     }}
+                    aria-label="Поиск заведения, переход к списку"
                   />
                 </div>
                 <NavLink className={style.return} to="/admin/venues">

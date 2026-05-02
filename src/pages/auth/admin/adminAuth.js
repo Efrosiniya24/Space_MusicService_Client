@@ -70,7 +70,7 @@ const AdminAuth = () => {
       localStorage.setItem("email", email);
       localStorage.setItem("userRoles", JSON.stringify(roles || []));
       console.log("ROLES:", roles);
-      const hasVenueAccess = roles?.some((r) => ["SYSTEM_ADMIN"].includes(r));
+      const hasVenueAccess = roles?.some((r) => ["PLATFORM_ADMIN"].includes(r));
 
       if (!hasVenueAccess) {
         setSuccessMessage("");
