@@ -15,6 +15,8 @@ import AdminAuth from "./pages/auth/admin/adminAuth";
 import VenuesAdmin from "./pages/admin/venues/VenuesAdmin";
 import SingleVenueAdmin from "./pages/admin/singleVenue/SingleVenueAdmin";
 import AdminArtists from "./pages/admin/artists/AdminArtists";
+import AdminArtistAddPage from "./pages/admin/artists/AdminArtistAddPage";
+import AdminArtistSectionPlaceholder from "./pages/admin/artists/AdminArtistSectionPlaceholder";
 
 function App() {
   return (
@@ -43,6 +45,15 @@ function App() {
         <Route path="/admin/auth" element={<AdminAuth />}></Route>
         <Route path="/admin/venues" element={<VenuesAdmin />}></Route>
         <Route path="/admin/artists" element={<AdminArtists />}></Route>
+        <Route path="/admin/artists/add" element={<AdminArtistAddPage />}></Route>
+        <Route
+          path="/admin/artists/:artistId/tracks"
+          element={<AdminArtistSectionPlaceholder section="tracks" />}
+        ></Route>
+        <Route
+          path="/admin/artists/:artistId/albums"
+          element={<AdminArtistSectionPlaceholder section="albums" />}
+        ></Route>
         <Route
           path="/admin/venue/:venueId"
           element={<SingleVenueAdmin />}

@@ -4,10 +4,7 @@ const API_GATEWAY =
     process.env.REACT_APP_API_GATEWAY) ||
   "http://localhost:8080";
 
-/**
- * Обложка заведения из media-service (таблица image_venue + MinIO).
- * Предпочтительный способ — всегда по venueId.
- */
+
 export function getVenueCoverImageUrl(venueId) {
   if (venueId == null || venueId === "") {
     return null;
@@ -17,9 +14,7 @@ export function getVenueCoverImageUrl(venueId) {
   return u.toString();
 }
 
-/**
- * Старое поле cover в venue: полный URL, путь или object key в MinIO.
- */
+
 export function resolveVenueCoverFromDtoField(cover) {
   if (cover == null || !String(cover).trim()) {
     return null;

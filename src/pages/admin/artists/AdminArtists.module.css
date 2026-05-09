@@ -1,3 +1,19 @@
+.titleBlock {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: stretch;
+}
+
+.sectionToggleRow {
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+  align-self: flex-start;
+  margin-left: 50px;
+}
+
 .actions {
   margin-left: auto;
   display: inline-flex;
@@ -36,75 +52,109 @@
   line-height: 1.25;
 }
 
-.modalBackdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.32);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
+.clickRow {
+  cursor: pointer;
 }
 
-.modal {
-  width: min(520px, calc(100% - 32px));
-  background: #efefef;
-  border-radius: 16px;
-  border: 1px solid #d4d4d4;
-  padding: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.clickRow:hover {
+  background: rgba(42, 97, 40, 0.06);
 }
 
-.modalTitle {
-  margin: 0;
-  font-size: 22px;
-  color: #333;
+.clickRow:focus-visible {
+    outline: 2px solid #2a6128;
+    outline-offset: -2px;
 }
 
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+.trackRowPlaying {
+    background: rgba(70, 135, 67, 0.12);
 }
 
-.field label {
-  font-size: 14px;
-  color: #333;
-  font-weight: 600;
+.trackRowLoading {
+    opacity: 0.65;
+    pointer-events: none;
 }
 
-.field input,
-.field textarea {
-  border: 1px solid #bdbdbd;
-  border-radius: 10px;
-  padding: 10px 12px;
-  font-family: inherit;
-  font-size: 14px;
-  color: #333;
-  outline: none;
-  background: #fff;
+.trackFileCell {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.field textarea {
-  min-height: 90px;
+.quickTrackModalDialog {
+  width: 100%;
+  max-width: min(560px, calc(100vw - 48px));
+  height: auto;
+  max-height: min(94vh, 900px);
+  padding: 18px 24px 16px;
+  box-sizing: border-box;
+}
+
+.quickTrackSectionTitle {
+  margin: 14px 0 10px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #111;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(51, 51, 51, 0.15);
+}
+
+.quickTrackSectionTitle:first-of-type {
+  margin-top: 0;
+}
+
+.quickTrackTextarea {
+  min-height: 88px;
   resize: vertical;
+  line-height: 1.4;
 }
 
-.modalActions {
+.quickTrackHint {
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #555;
+}
+
+.quickTrackFileHint {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #444;
+  word-break: break-word;
+}
+
+/* Обёртка для чекбокса «Новый исполнитель»: стили чекбокса — trackModalGenreOption */
+.quickTrackChoiceWrap {
+  margin-bottom: 14px;
+}
+
+.quickTrackActionsBar {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  flex-shrink: 0;
 }
 
-.cancelBtn {
-  border: none;
+.quickTrackPickBtn {
+  align-self: flex-start;
+  border: 1px solid #333;
   border-radius: 10px;
-  background: #cfcfcf;
-  color: #333;
-  font-size: 14px;
-  font-weight: 600;
-  padding: 8px 16px;
+  background: #fff;
+  padding: 8px 14px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
   cursor: pointer;
+}
+
+.quickTrackPickBtn:hover:not(:disabled) {
+  background: #f3f3f3;
+}
+
+.quickTrackPickBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }

@@ -21,7 +21,6 @@ import returnPage from "../../../icons/return.png";
 import {
   API_GATEWAY,
   getVenueCoverImageUrl,
-  resolveVenueCoverFromDtoField,
 } from "../../../utils/venueMediaUrls";
 import {
   AddressStatusChangePopover,
@@ -143,7 +142,7 @@ const SingleVenueAdmin = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [venue, setVenue] = useState(null);
   const [venueLoading, setVenueLoading] = useState(true);
-  /** 0 — getVenueCover(venueId), 1 — поле cover + download, 2 — заглушка */
+  /** 0 — getVenueCover(venueId), 1 — (резерв), 2 — заглушка */
   const [coverStep, setCoverStep] = useState(0);
   const [activeVenueSection, setActiveVenueSection] = useState(
     VENUE_SECTION_TABS[0].id,
@@ -259,12 +258,12 @@ const SingleVenueAdmin = () => {
   const coverSrc = useMemo(() => {
     if (coverStep >= 2) return returnPage;
     if (coverStep === 1) {
-      return resolveVenueCoverFromDtoField(venue?.cover) || returnPage;
+      return returnPage;
     }
     const byId = getVenueCoverImageUrl(venue?.id);
     if (byId) return byId;
-    return resolveVenueCoverFromDtoField(venue?.cover) || returnPage;
-  }, [venue?.id, venue?.cover, coverStep]);
+    return returnPage;
+  }, [venue?.id, coverStep]);
 
   const loadVenue = useCallback(async () => {
     const id = Number(venueId);
@@ -749,11 +748,6 @@ const SingleVenueAdmin = () => {
                             onError={() => {
                               setCoverStep((step) => {
                                 if (step >= 2) return 2;
-                                if (step === 0) {
-                                  const legacy =
-                                    resolveVenueCoverFromDtoField(venue?.cover);
-                                  return legacy ? 1 : 2;
-                                }
                                 return 2;
                               });
                             }}

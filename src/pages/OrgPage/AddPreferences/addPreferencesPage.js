@@ -26,7 +26,6 @@ import ReturnPage from "../../../icons/return.png";
 import {
   API_GATEWAY,
   getVenueCoverImageUrl,
-  resolveVenueCoverFromDtoField,
 } from "../../../utils/venueMediaUrls";
 
 function urlVenueById(id) {
@@ -85,7 +84,6 @@ function customIntervalPairKey(from, to) {
   return `${String(from)}|${String(to)}`;
 }
 
-/** Повторяющиеся пары «с — до»: для UI и блокировки «+». */
 function getCustomIntervalDuplicateState(rows) {
   const counts = new Map();
   for (const r of rows) {
@@ -117,10 +115,7 @@ function parseIntervalTimeParts(value) {
   return { h: pad2(h), m: pad2(m) };
 }
 
-/**
- * Время: как раньше — один щелчок открывает список; плюс ввод ЧЧ:ММ с клавиатуры.
- * Пока список открыт, щелчок по полю только ставит курсор (список не закрывается).
- */
+
 function PrefIntervalTimePicker({
   value,
   onChange,
@@ -389,11 +384,11 @@ const AddPreferencesPage = () => {
     if (!venue) return "";
     if (coverStep >= 2) return "";
     if (coverStep === 1) {
-      return resolveVenueCoverFromDtoField(venue.cover) || "";
+      return "";
     }
     const byId = getVenueCoverImageUrl(venue.id);
     if (byId) return byId;
-    return resolveVenueCoverFromDtoField(venue.cover) || "";
+    return "";
   }, [venue, coverStep]);
 
   const name =
@@ -796,7 +791,7 @@ const AddPreferencesPage = () => {
     };
 
     setSaveLoading(true);
-    fetch(`${API_GATEWAY}/space/personalization/preferences`, {
+    fetch(`${API_GATEWAY}/space/personalizatin/preferences`, {
       method: "POST",
       headers,
       body: JSON.stringify(payload),
@@ -923,12 +918,6 @@ const AddPreferencesPage = () => {
                           onError={() => {
                             setCoverStep((step) => {
                               if (step >= 2) return 2;
-                              if (step === 0) {
-                                const legacy = resolveVenueCoverFromDtoField(
-                                  venue?.cover,
-                                );
-                                return legacy ? 1 : 2;
-                              }
                               return 2;
                             });
                           }}

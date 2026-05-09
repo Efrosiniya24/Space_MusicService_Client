@@ -9,11 +9,20 @@ import Play from "../../icons/Play.png";
 import Playlist from "../../icons/PlaylistWhite.png";
 import Like from "../../icons/like.png";
 import NotLike from "../../icons/NotLike.png";
-import Full from "../../icons/full.png";
 
 import main from "../../pages/mainListenerPage/mainListenerPage.module.css";
 
-export default function AudioPlayer({ src, className }) {
+export default function AudioPlayer({
+  src,
+  title = "Name of song",
+  artist = "Musician",
+  coverSrc = "",
+  onClose,
+  adminMode = false,
+  onPlayingChange,
+  onDurationKnown,
+  onEnded,
+}) {
   const audioRef = useRef(null);
   const [isPlaying, setPlaying] = useState(false);
   const [time, setTime] = useState(0);
@@ -32,14 +41,50 @@ export default function AudioPlayer({ src, className }) {
     if (a.paused) {
       a.play();
       setPlaying(true);
+      onPlayingChange?.(true);
     } else {
       a.pause();
       setPlaying(false);
+      onPlayingChange?.(false);
     }
   };
 
-  const onLoaded = (e) => setDur(e.currentTarget.duration || 225);
+  const onLoaded = (e) => {
+    const d = e.currentTarget.duration || 225;
+    setDur(d);
+    if (Number.isFinite(d) && d > 0) {
+      onDurationKnown?.(Math.round(d));
+    }
+  };
   const onTime = (e) => setTime(e.currentTarget.currentTime || 0);
+
+  useEffect(() => {
+    const a = audioRef.current;
+    if (!a) return;
+    if (!hasSrc) {
+      a.pause();
+      setPlaying(false);
+      onPlayingChange?.(false);
+      setTime(0);
+      return;
+    }
+    setTime(0);
+    const p = a.play();
+    if (p && typeof p.then === "function") {
+      p
+        .then(() => {
+          setPlaying(true);
+          onPlayingChange?.(true);
+        })
+        .catch(() => {
+          setPlaying(false);
+          onPlayingChange?.(false);
+        });
+    } else {
+      setPlaying(true);
+      onPlayingChange?.(true);
+    }
+  }, [src, hasSrc, onPlayingChange]);
 
   useEffect(() => {
     if (!isPlaying || hasSrc) return;
@@ -65,25 +110,29 @@ export default function AudioPlayer({ src, className }) {
   return (
     <div className={style.playingLine}>
       <div className={main.photoText}>
-        <img src="" />
+        <img src={coverSrc || ""} alt="" />
         <div className={main.text}>
           <a>
-            <h1>Name of song</h1>
+            <h1>{title}</h1>
           </a>
           <a>
-            <p>Musician</p>
+            <p>{artist}</p>
           </a>
         </div>
-        <div className={main.iconInPhotoText}>
-          <a onClick={toggleLike}>
-            <img src={liked ? NotLike : Like} />
-          </a>
-        </div>
-        <div className={main.iconInPhotoText}>
-          <a>
-            <img src={Playlist} />
-          </a>
-        </div>
+        {!adminMode ? (
+          <>
+            <div className={main.iconInPhotoText}>
+              <a onClick={toggleLike}>
+                <img src={liked ? NotLike : Like} />
+              </a>
+            </div>
+            <div className={main.iconInPhotoText}>
+              <a>
+                <img src={Playlist} />
+              </a>
+            </div>
+          </>
+        ) : null}
       </div>
       <div className={style.main}>
         <audio
@@ -94,21 +143,36 @@ export default function AudioPlayer({ src, className }) {
           onTimeUpdate={onTime}
           onEnded={() => {
             setPlaying(false);
+            onPlayingChange?.(false);
             setTime(0);
+            onEnded?.();
           }}
           style={{ display: "none" }}
         />
 
         <div className={style.controls}>
-          <a>
-            <img className={style.icon} src={Prev} />
-          </a>
-          <a className={style.play} onClick={toggle} aria-label="Play/Pause">
-            {isPlaying ? <img src={Play} /> : <img src={Pause} />}
-          </a>
-          <a>
-            <img className={style.icon} src={Next} />
-          </a>
+          {adminMode ? (
+            <button
+              type="button"
+              className={style.adminPlayBtn}
+              onClick={toggle}
+              aria-label={isPlaying ? "Пауза" : "Воспроизвести"}
+            >
+              {isPlaying ? "⏸" : "▶"}
+            </button>
+          ) : (
+            <>
+              <a>
+                <img className={style.icon} src={Prev} />
+              </a>
+              <a className={style.play} onClick={toggle} aria-label="Play/Pause">
+                {isPlaying ? <img src={Pause} /> : <img src={Play} />}
+              </a>
+              <a>
+                <img className={style.icon} src={Next} />
+              </a>
+            </>
+          )}
         </div>
 
         <div className={style.progress}>
@@ -126,11 +190,14 @@ export default function AudioPlayer({ src, className }) {
           <span className={style.time}>{fmt(dur)}</span>
         </div>
       </div>
-      <div className={main.iconInPhotoText}>
-        <a>
-          <img src={Full} />
-        </a>
-      </div>
+      <button
+        type="button"
+        className={adminMode ? style.closeBtn : style.fullBtn}
+        onClick={onClose}
+        aria-label={adminMode ? "Скрыть плеер" : "Полный экран"}
+      >
+        {adminMode ? "×" : "⤢"}
+      </button>
     </div>
   );
 }

@@ -12,11 +12,7 @@ import Music from "../../icons/music.png";
 import Genres from "../../icons/genres.png";
 import Org from "../../icons/org.png";
 import ReturnPage from "../../icons/return.png";
-import {
-  API_GATEWAY,
-  getVenueCoverImageUrl,
-  resolveVenueCoverFromDtoField,
-} from "../../utils/venueMediaUrls";
+import { API_GATEWAY, getVenueCoverImageUrl } from "../../utils/venueMediaUrls";
 
 function urlVenueById(id) {
   return `${API_GATEWAY}/space/venue/${id}`;
@@ -128,11 +124,11 @@ const OrgPage = () => {
     if (!venue) return "";
     if (coverStep >= 2) return "";
     if (coverStep === 1) {
-      return resolveVenueCoverFromDtoField(venue.cover) || "";
+      return "";
     }
     const byId = getVenueCoverImageUrl(venue.id);
     if (byId) return byId;
-    return resolveVenueCoverFromDtoField(venue.cover) || "";
+    return "";
   }, [venue, coverStep]);
 
   const name =
@@ -306,12 +302,6 @@ const OrgPage = () => {
                         onError={() => {
                           setCoverStep((step) => {
                             if (step >= 2) return 2;
-                            if (step === 0) {
-                              const legacy = resolveVenueCoverFromDtoField(
-                                venue?.cover,
-                              );
-                              return legacy ? 1 : 2;
-                            }
                             return 2;
                           });
                         }}
