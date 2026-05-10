@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import style from "../venues/VenueAdmin.module.css";
 import pageStyle from "./AdminArtists.module.css";
 import artistUiStyle from "./AdminArtistAddPage.module.css";
@@ -18,8 +18,10 @@ import AudioPlayer from "../../../Component/AudioPlayer/AudioPlayer";
 import search from "../../../icons/search_black.png";
 import jsmediatags from "jsmediatags/dist/jsmediatags.min.js";
 import {
+  appendGenreHintsArrayToFormData,
   appendPendingGenreHints,
   matchCatalogGenreIdsFromStrings,
+  mergeGenreIdsWithEnvFallback,
 } from "./adminGenreCatalogMatch.js";
 
 const API_GATEWAY = "http://localhost:8080";
@@ -27,6 +29,8 @@ const URL_ARTIST_ALL = `${API_GATEWAY}/space/media/artist/all`;
 const URL_ARTIST_SEARCH = `${API_GATEWAY}/space/media/artist/search`;
 const URL_TRACK_ALL = `${API_GATEWAY}/space/media/track/all`;
 const URL_ARTIST_CREATE = `${API_GATEWAY}/space/media/artist/create`;
+const urlArtistDelete = (artistId) =>
+  `${API_GATEWAY}/space/media/artist/${artistId}`;
 const URL_ADD_IMAGE = `${API_GATEWAY}/space/media/addImage`;
 const urlTrackForArtist = (artistId) =>
   `${API_GATEWAY}/space/media/track/for-artist/${artistId}`;
@@ -36,6 +40,7 @@ const urlCatalogImage = (imageId) =>
   `${API_GATEWAY}/space/media/image/${imageId}`;
 const URL_TRACK_PROBE_METADATA = `${API_GATEWAY}/space/media/track/probe-metadata`;
 
+/** Оценка высоты строки до первого измерения layout (tbody может быть ещё пустым). */
 const DEFAULT_CATALOG_ROW_HEIGHT_PX = 52;
 const MIN_CATALOG_TABLE_ROWS = 5;
 
@@ -200,6 +205,7 @@ function formatTrackDurationDot(totalSeconds) {
 
 const AdminArtists = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [section, setSection] = useState("artists");
 
   const [errorMessage, setErrorMessage] = useState("");
@@ -208,7 +214,36 @@ const AdminArtists = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortKey, setSortKey] = useState("id");
   const [sortDir, setSortDir] = useState("asc");
-  const [page, setPage] = useState(1);
+
+  const page = useMemo(() => {
+    const n = parseInt(searchParams.get("page") || "1", 10);
+    return Number.isFinite(n) && n >= 1 ? n : 1;
+  }, [searchParams]);
+
+  const setArtistCatalogPage = useCallback(
+    (next) => {
+      setSearchParams(
+        (prev) => {
+          const p = new URLSearchParams(prev);
+          const cur = Math.max(
+            1,
+            parseInt(p.get("page") || "1", 10) || 1,
+          );
+          const resolved =
+            typeof next === "function" ? next(cur) : next;
+          const clamped = Math.max(1, Number(resolved) || 1);
+          if (clamped <= 1) {
+            p.delete("page");
+          } else {
+            p.set("page", String(clamped));
+          }
+          return p;
+        },
+        { replace: true },
+      );
+    },
+    [setSearchParams],
+  );
 
   const [tracks, setTracks] = useState([]);
   const [loadingTracks, setLoadingTracks] = useState(false);
@@ -224,6 +259,7 @@ const AdminArtists = () => {
   const [tracksTablePlayLoadingId, setTracksTablePlayLoadingId] =
     useState(null);
   const tracksTableAudioAbortRef = useRef(null);
+  /** Область таблицы без скролла: число строк на страницу = сколько реально влезает по высоте. */
   const catalogTableScrollRef = useRef(null);
 
   const quickAudioInputRef = useRef(null);
@@ -315,36 +351,37 @@ const AdminArtists = () => {
     quickArtistFromFileAppliedRef.current = true;
   }, []);
 
+  const [artistDeletingId, setArtistDeletingId] = useState(null);
+  /** Подтверждение удаления исполнителя из каталога (вместо window.confirm). */
+  const [confirmDeleteArtist, setConfirmDeleteArtist] = useState(null);
   const [catalogTableViewportSlots, setCatalogTableViewportSlots] =
-    useState(12);
+    useState(10);
 
   const measureCatalogTableViewportSlots = useCallback(() => {
     const scrollEl = catalogTableScrollRef.current;
     if (!scrollEl) return;
     const theadRow = scrollEl.querySelector("thead tr");
-    const sampleRow = scrollEl.querySelector(
-      "tbody tr[data-catalog-row]",
-    );
+    const sampleRows = Array.from(
+      scrollEl.querySelectorAll("tbody tr[data-catalog-row]"),
+    ).slice(0, 12);
     const theadH = theadRow?.getBoundingClientRect().height ?? 48;
-    const rowH =
-      sampleRow?.getBoundingClientRect().height ??
-      DEFAULT_CATALOG_ROW_HEIGHT_PX;
-    const available = scrollEl.clientHeight - theadH;
-    const slots = Math.max(
-      MIN_CATALOG_TABLE_ROWS,
-      Math.floor(available / Math.max(1, rowH)),
-    );
+    const rowH = sampleRows.length
+      ? sampleRows.reduce((mx, row) => {
+          const h = row?.getBoundingClientRect?.().height || 0;
+          return Math.max(mx, h);
+        }, 0)
+      : DEFAULT_CATALOG_ROW_HEIGHT_PX;
+    /* запас на бордеры строк и субпиксели — чтобы не резало последнюю строку до появления скролла */
+    const bufferPx = 28;
+    const available = Math.max(0, scrollEl.clientHeight - theadH - bufferPx);
+    const slots = Math.max(1, Math.floor(available / Math.max(1, rowH)));
     setCatalogTableViewportSlots(slots);
   }, []);
 
-  const loadArtists = async (query = "") => {
+  const loadArtists = async () => {
     setLoading(true);
-    const q = String(query || "").trim();
-    const url = q
-      ? `${URL_ARTIST_SEARCH}?query=${encodeURIComponent(q)}`
-      : URL_ARTIST_ALL;
     try {
-      const res = await fetch(url, {
+      const res = await fetch(URL_ARTIST_ALL, {
         headers: authHeaders(),
       });
       if (!res.ok) throw new Error("artists_fetch_failed");
@@ -376,6 +413,42 @@ const AdminArtists = () => {
       setErrorMessage("Не удалось загрузить список треков");
     } finally {
       setLoadingTracks(false);
+    }
+  };
+
+  const deleteArtistRow = (row, ev) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    const id = row?.id != null ? Number(row.id) : NaN;
+    const nm = String(row?.name || "").trim() || `id ${id}`;
+    if (!Number.isFinite(id) || id <= 0 || artistDeletingId != null) return;
+    setSuccessMessage("");
+    setErrorMessage("");
+    setConfirmDeleteArtist({ id, name: nm });
+  };
+
+  const finalizeDeleteArtist = async () => {
+    if (!confirmDeleteArtist || artistDeletingId != null) return;
+    const { id, name: nm } = confirmDeleteArtist;
+    setArtistDeletingId(id);
+    setErrorMessage("");
+    try {
+      const res = await fetch(urlArtistDelete(id), {
+        method: "DELETE",
+        headers: authHeaders(),
+      });
+      if (res.ok) {
+        setConfirmDeleteArtist(null);
+        await loadArtists(searchQuery);
+        setSuccessMessage(`Исполнитель «${nm}» удалён`);
+        return;
+      }
+      const text = await res.text().catch(() => "");
+      setErrorMessage(text || `Не удалось удалить (${res.status})`);
+    } catch {
+      setErrorMessage("Не удалось удалить исполнителя");
+    } finally {
+      setArtistDeletingId(null);
     }
   };
 
@@ -625,7 +698,11 @@ const AdminArtists = () => {
       fd.append("ownerId", String(ownerId));
       if (trackCoverId != null) fd.append("idCover", String(trackCoverId));
       if (durSec > 0) fd.append("durationSeconds", String(durSec));
-      appendGenreIdsArrayToFormData(fd, quickGenreIds);
+      appendGenreIdsArrayToFormData(
+        fd,
+        mergeGenreIdsWithEnvFallback(quickGenreIds),
+      );
+      appendGenreHintsArrayToFormData(fd, [...pendingGenreHintsRef.current]);
 
       const res = await fetch(urlTrackForArtist(aid), {
         method: "POST",
@@ -746,15 +823,8 @@ const AdminArtists = () => {
   );
 
   useEffect(() => {
-    loadArtists("");
+    loadArtists();
   }, []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      loadArtists(searchQuery);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
 
   useEffect(() => {
     if (section !== "tracks") return undefined;
@@ -780,6 +850,22 @@ const AdminArtists = () => {
     const timer = setTimeout(() => setSuccessMessage(""), 3400);
     return () => clearTimeout(timer);
   }, [successMessage]);
+
+  useEffect(() => {
+    if (!confirmDeleteArtist) return undefined;
+    const onKey = (e) => {
+      if (e.key === "Escape" && artistDeletingId == null) {
+        setConfirmDeleteArtist(null);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [confirmDeleteArtist, artistDeletingId]);
 
   useEffect(() => {
     if (!quickTrackModalOpen) return undefined;
@@ -860,7 +946,15 @@ const AdminArtists = () => {
   }, [catalogGenres, quickGenreSearch]);
 
   const filteredSorted = useMemo(() => {
-    const rows = [...artists];
+    const q = String(searchQuery || "").trim().toLowerCase();
+    let rows = [...artists];
+    if (q) {
+      rows = rows.filter((a) => {
+        const name = String(a?.name || "").toLowerCase();
+        const idText = String(a?.id ?? "");
+        return name.includes(q) || idText.includes(q);
+      });
+    }
 
     rows.sort((a, b) => {
       let cmp = 0;
@@ -874,12 +968,16 @@ const AdminArtists = () => {
       return sortDir === "asc" ? cmp : -cmp;
     });
     return rows;
-  }, [artists, sortKey, sortDir]);
+  }, [artists, searchQuery, sortKey, sortDir]);
 
   const catalogPageSize = catalogTableViewportSlots;
 
   const pageCount = Math.max(1, Math.ceil(filteredSorted.length / catalogPageSize));
-  const safePage = Math.min(page, pageCount);
+  /* Пока список грузится, filteredSorted пустой и pageCount=1 — не сужаем page до 1 иначе сбросится ?page= из URL. */
+  const safePage =
+    loading && section === "artists"
+      ? page
+      : Math.min(page, pageCount);
   const pageRows = filteredSorted.slice(
     (safePage - 1) * catalogPageSize,
     safePage * catalogPageSize,
@@ -931,29 +1029,37 @@ const AdminArtists = () => {
   useLayoutEffect(() => {
     const scrollEl = catalogTableScrollRef.current;
     if (!scrollEl) return undefined;
-    measureCatalogTableViewportSlots();
-    const ro = new ResizeObserver(measureCatalogTableViewportSlots);
+    const run = () => measureCatalogTableViewportSlots();
+    run();
+    const rafId = requestAnimationFrame(run);
+    const ro = new ResizeObserver(run);
     ro.observe(scrollEl);
-    return () => ro.disconnect();
+    return () => {
+      cancelAnimationFrame(rafId);
+      ro.disconnect();
+    };
   }, [
     section,
     loading,
     loadingTracks,
     filteredSorted.length,
     filteredTracksSorted.length,
+    safePage,
+    safeTrackPage,
     measureCatalogTableViewportSlots,
   ]);
 
   useEffect(() => {
-    if (page > pageCount) setPage(pageCount);
-  }, [page, pageCount]);
+    if (loading) return;
+    if (page > pageCount) setArtistCatalogPage(pageCount);
+  }, [page, pageCount, setArtistCatalogPage, loading]);
 
   useEffect(() => {
     if (trackPage > trackPageCount) setTrackPage(trackPageCount);
   }, [trackPage, trackPageCount]);
 
   const toggleSort = (key) => {
-    setPage(1);
+    setArtistCatalogPage(1);
     if (sortKey !== key) {
       setSortKey(key);
       setSortDir("asc");
@@ -1007,7 +1113,7 @@ const AdminArtists = () => {
                   }
                   onClick={() => {
                     setSection("artists");
-                    setPage(1);
+                    setArtistCatalogPage(1);
                   }}
                 >
                   Исполнители
@@ -1052,7 +1158,7 @@ const AdminArtists = () => {
                     const v = e.target.value;
                     if (section === "artists") {
                       setSearchQuery(v);
-                      setPage(1);
+                      setArtistCatalogPage(1);
                     } else {
                       setTrackSearch(v);
                       setTrackPage(1);
@@ -1082,12 +1188,15 @@ const AdminArtists = () => {
             </div>
 
             {section === "artists" ? (
-              <div className={`${style.tableCard} ${pageStyle.tableCard}`}>
-                <div ref={catalogTableScrollRef} className={style.tableScroll}>
+              <div className={pageStyle.catalogCard}>
+                <div
+                  ref={catalogTableScrollRef}
+                  className={pageStyle.catalogScrollPane}
+                >
                   <table className={`${style.venuesTable} ${pageStyle.table}`}>
                     <thead>
                       <tr>
-                        <th>
+                        <th className={pageStyle.colId}>
                           <button
                             type="button"
                             className={style.thSort}
@@ -1096,7 +1205,7 @@ const AdminArtists = () => {
                             ID
                           </button>
                         </th>
-                        <th>
+                        <th className={pageStyle.colName}>
                           <button
                             type="button"
                             className={style.thSort}
@@ -1105,8 +1214,8 @@ const AdminArtists = () => {
                             Имя
                           </button>
                         </th>
-                        <th>Роль</th>
-                        <th>
+                        <th className={pageStyle.colRole}>Роль</th>
+                        <th className={pageStyle.colDate}>
                           <button
                             type="button"
                             className={style.thSort}
@@ -1115,7 +1224,7 @@ const AdminArtists = () => {
                             Создан
                           </button>
                         </th>
-                        <th>
+                        <th className={pageStyle.colDate}>
                           <button
                             type="button"
                             className={style.thSort}
@@ -1124,18 +1233,19 @@ const AdminArtists = () => {
                             Изменен
                           </button>
                         </th>
+                        <th className={pageStyle.colActions}>Действия</th>
                       </tr>
                     </thead>
                     <tbody>
                       {loading ? (
                         <tr>
-                          <td colSpan={5} className={style.tableEmpty}>
+                          <td colSpan={6} className={style.tableEmpty}>
                             Загрузка...
                           </td>
                         </tr>
                       ) : pageRows.length === 0 ? (
                         <tr>
-                          <td colSpan={5} className={style.tableEmpty}>
+                          <td colSpan={6} className={style.tableEmpty}>
                             Исполнители не найдены
                           </td>
                         </tr>
@@ -1148,24 +1258,48 @@ const AdminArtists = () => {
                             tabIndex={0}
                             role="link"
                             onClick={() =>
-                              navigate(`/admin/artists/add?id=${row.id}`)
+                              navigate(
+                                `/admin/artists/add?id=${row.id}&fromPage=${safePage}`,
+                              )
                             }
                             onKeyDown={(e) => {
                               if (e.key === "Enter" || e.key === " ") {
                                 e.preventDefault();
-                                navigate(`/admin/artists/add?id=${row.id}`);
+                                navigate(
+                                  `/admin/artists/add?id=${row.id}&fromPage=${safePage}`,
+                                );
                               }
                             }}
                           >
                             <td>{row.id}</td>
-                            <td className={style.cellNameBold}>{row.name || "—"}</td>
-                            <td className={pageStyle.roleCell}>
-                              {Array.isArray(row.roles) && row.roles.length > 0
-                                ? row.roles.join("\n")
-                                : "Исполнитель"}
+                            <td
+                              className={`${pageStyle.colName} ${style.cellNameBold} ${pageStyle.nameCellEllipsis}`}
+                              title={row.name || ""}
+                            >
+                              {row.name || "—"}
                             </td>
-                            <td>{formatDate(row.createdAt)}</td>
-                            <td>{formatDate(row.updatedAt)}</td>
+                            <td className={`${pageStyle.colRole} ${pageStyle.roleCell}`}>
+                              {Array.isArray(row.roles) && row.roles.length > 0
+                                ? row.roles.join(", ")
+                                : "—"}
+                            </td>
+                            <td className={pageStyle.colDate}>
+                              {formatDate(row.createdAt)}
+                            </td>
+                            <td className={pageStyle.colDate}>
+                              {formatDate(row.updatedAt)}
+                            </td>
+                            <td className={pageStyle.colActions}>
+                              <button
+                                type="button"
+                                className={pageStyle.deleteArtistBtn}
+                                disabled={artistDeletingId != null}
+                                aria-label={`Удалить исполнителя ${row.name || row.id}`}
+                                onClick={(e) => deleteArtistRow(row, e)}
+                              >
+                                Удалить
+                              </button>
+                            </td>
                           </tr>
                         ))
                       )}
@@ -1178,28 +1312,42 @@ const AdminArtists = () => {
                     type="button"
                     className={style.pageNav}
                     disabled={safePage <= 1}
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    onClick={() =>
+                      setArtistCatalogPage((p) => Math.max(1, p - 1))
+                    }
                   >
                     ◀
                   </button>
-                  <span className={style.pageCurrent}>{safePage}</span>
+                  <span
+                    className={style.pageCurrent}
+                    title={`Страница ${safePage} из ${pageCount}`}
+                  >
+                    {safePage}
+                  </span>
                   <button
                     type="button"
                     className={style.pageNav}
                     disabled={safePage >= pageCount}
-                    onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
+                    onClick={() =>
+                      setArtistCatalogPage((p) =>
+                        Math.min(pageCount, p + 1),
+                      )
+                    }
                   >
                     ▶
                   </button>
                 </div>
               </div>
             ) : (
-              <div className={`${style.tableCard} ${pageStyle.tableCard}`}>
-                <div ref={catalogTableScrollRef} className={style.tableScroll}>
+              <div className={pageStyle.catalogCard}>
+                <div
+                  ref={catalogTableScrollRef}
+                  className={pageStyle.catalogScrollPane}
+                >
                   <table className={`${style.venuesTable} ${pageStyle.table}`}>
                     <thead>
                       <tr>
-                        <th>
+                        <th className={pageStyle.colId}>
                           <button
                             type="button"
                             className={style.thSort}
@@ -1307,7 +1455,12 @@ const AdminArtists = () => {
                   >
                     ◀
                   </button>
-                  <span className={style.pageCurrent}>{safeTrackPage}</span>
+                  <span
+                    className={style.pageCurrent}
+                    title={`Страница ${safeTrackPage} из ${trackPageCount}`}
+                  >
+                    {safeTrackPage}
+                  </span>
                   <button
                     type="button"
                     className={style.pageNav}
@@ -1872,6 +2025,55 @@ const AdminArtists = () => {
                 onClick={() => void submitQuickTrack()}
               >
                 {quickTrackSubmitting ? "Сохранение…" : "Сохранить"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {confirmDeleteArtist ? (
+        <div
+          className={artistUiStyle.confirmModalBackdrop}
+          role="presentation"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget && artistDeletingId == null) {
+              setConfirmDeleteArtist(null);
+            }
+          }}
+        >
+          <div
+            className={artistUiStyle.confirmModalDialog}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="confirm-delete-artist-heading"
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <h3
+              id="confirm-delete-artist-heading"
+              className={artistUiStyle.confirmModalHeading}
+            >
+              Удалить исполнителя из каталога?
+            </h3>
+            <p className={artistUiStyle.confirmModalText}>
+              Исполнитель «{confirmDeleteArtist.name}» будет удалён из каталога.
+              Если у него есть треки или альбомы, сервер отклонит удаление.
+            </p>
+            <div className={artistUiStyle.confirmModalActions}>
+              <button
+                type="button"
+                className={artistUiStyle.confirmModalCancel}
+                onClick={() => setConfirmDeleteArtist(null)}
+                disabled={artistDeletingId != null}
+              >
+                Отмена
+              </button>
+              <button
+                type="button"
+                className={artistUiStyle.confirmModalDelete}
+                onClick={() => void finalizeDeleteArtist()}
+                disabled={artistDeletingId != null}
+              >
+                {artistDeletingId != null ? "Удаление…" : "Удалить"}
               </button>
             </div>
           </div>

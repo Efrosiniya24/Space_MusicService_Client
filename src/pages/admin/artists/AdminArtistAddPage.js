@@ -16,8 +16,11 @@ import AudioPlayer from "../../../Component/AudioPlayer/AudioPlayer";
 
 import Header from "../../../Component/headerAdmin/HeaderAdmin";
 import {
+  appendGenreHintsArrayToFormData,
   appendPendingGenreHints,
+  genreTokensFromRaw,
   matchCatalogGenreIdsFromStrings,
+  mergeGenreIdsWithEnvFallback,
 } from "./adminGenreCatalogMatch.js";
 import returnPage from "../../../icons/return.png";
 import chevronDown from "../../../icons/down.png";
@@ -262,6 +265,18 @@ function normalizeEmbeddedImageMime(format) {
 
 const AdminArtistAddPage = () => {
   const [searchParams] = useSearchParams();
+
+  const artistsListReturnTo = useMemo(() => {
+    const raw = searchParams.get("fromPage");
+    const n =
+      raw != null && String(raw).trim() !== ""
+        ? parseInt(raw, 10)
+        : NaN;
+    if (Number.isFinite(n) && n >= 1) {
+      return n <= 1 ? "/admin/artists" : `/admin/artists?page=${n}`;
+    }
+    return "/admin/artists";
+  }, [searchParams]);
   const fileInputRef = useRef(null);
   const albumCoverInputRef = useRef(null);
   const savedAlbumCoverInputRef = useRef(null);
@@ -1176,6 +1191,7 @@ const AdminArtistAddPage = () => {
         audioUrl: localAudioUrl,
         audioFile: trackModalAudioFile,
         genreIds: normalizeGenreIdList(trackModalGenreIds),
+        genreHints: genreTokensFromRaw([...pendingTrackGenreHintsRef.current]),
       };
       setDraftAlbumTracks((prev) => [...prev, localTrack]);
       setDraftAlbumTrackCount((c) => Math.min(999, c + 1));
@@ -1225,7 +1241,11 @@ const AdminArtistAddPage = () => {
         fd.append("ownerId", String(ownerId));
         if (idCover != null) fd.append("idCover", String(idCover));
         if (durSec > 0) fd.append("durationSeconds", String(Math.round(durSec)));
-        appendGenreIdsArrayToFormData(fd, trackModalGenreIds);
+        appendGenreIdsArrayToFormData(
+          fd,
+          mergeGenreIdsWithEnvFallback(trackModalGenreIds),
+        );
+        appendGenreHintsArrayToFormData(fd, [...pendingTrackGenreHintsRef.current]);
         const res = await fetch(urlTrackForArtist(artistId), {
           method: "POST",
           headers: authHeaders(),
@@ -1309,7 +1329,11 @@ const AdminArtistAddPage = () => {
       fd.append("ownerId", String(ownerId));
       if (idCover != null) fd.append("idCover", String(idCover));
       if (durSec > 0) fd.append("durationSeconds", String(durSec));
-      appendGenreIdsArrayToFormData(fd, trackModalGenreIds);
+      appendGenreIdsArrayToFormData(
+        fd,
+        mergeGenreIdsWithEnvFallback(trackModalGenreIds),
+      );
+      appendGenreHintsArrayToFormData(fd, [...pendingTrackGenreHintsRef.current]);
       const res = await fetch(urlTrackForArtist(artistId), {
         method: "POST",
         headers: authHeaders(),
@@ -2064,12 +2088,15 @@ const AdminArtistAddPage = () => {
         if (durSec > 0) fd.append("durationSeconds", String(Math.round(durSec)));
         appendGenreIdsArrayToFormData(
           fd,
-          Array.isArray(t.genreIds) && t.genreIds.length > 0
-            ? t.genreIds
-            : t.genreId != null
-              ? [t.genreId]
-              : [],
+          mergeGenreIdsWithEnvFallback(
+            Array.isArray(t.genreIds) && t.genreIds.length > 0
+              ? t.genreIds
+              : t.genreId != null
+                ? [t.genreId]
+                : [],
+          ),
         );
+        appendGenreHintsArrayToFormData(fd, t.genreHints || []);
         const res = await fetch(urlTrackForArtist(aid), {
           method: "POST",
           headers: authHeaders(),
@@ -2889,7 +2916,7 @@ const AdminArtistAddPage = () => {
 
           <div className={`${style.venues} ${style.venuesWide}`}>
             <div className={pageStyle.toolbar}>
-              <NavLink className={pageStyle.return} to="/admin/artists">
+              <NavLink className={pageStyle.return} to={artistsListReturnTo}>
                 <img src={returnPage} alt="" />
                 <p>Исполнители</p>
               </NavLink>
